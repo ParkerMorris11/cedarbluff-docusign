@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { Link, useParams } from 'react-router';
 import { envelopeService } from '../app/services';
 import { useLoad } from '../app/useLoad';
-import { canEditLayout, isSender } from '../domain/envelope';
+import { canEditLayout, isRecipient, isSender } from '../domain/envelope';
+import type { Envelope, User } from '../domain/types';
 import { USERS } from '../domain/seed';
 import { getSourceDocument } from '../repository/sourceDocuments';
 import { useCurrentUser } from '../store/currentUser';
@@ -39,17 +40,47 @@ export function EnvelopePage() {
         </span>
         {layoutEditable && (
           <span className="steps">
-            <button className={step === 'layout' ? '' : 'secondary'} onClick={() => setStep('layout')}>1. Place fields</button>
-            <button className={step === 'fill' ? '' : 'secondary'} onClick={() => setStep('fill')}>2. Fill, sign and send</button>
+            <button className={step === 'layout' ? 'step active' : 'step'} onClick={() => setStep('layout')}>1. Place fields</button>
+            <button className={step === 'fill' ? 'step active' : 'step'} onClick={() => setStep('fill')}>2. Fill, sign and send</button>
           </span>
         )}
         {!layoutEditable && isSender(env, user) && env.status !== 'draft' && <span className="hint">Locked: already sent.</span>}
       </div>
+      <NextStep env={env} user={user} step={step} onNext={() => setStep('fill')} />
       {/* key: start fresh local edit state when the user or status changes. */}
       {layoutEditable && step === 'layout'
         ? <Builder key={`${env.id}:${user.id}`} env={env} doc={doc} user={user} onChanged={setData} />
         : <FillView key={`${env.id}:${user.id}:${env.status}`} env={env} doc={doc} user={user} onChanged={setData} />}
       <AuditPanel env={env} user={user} />
     </main>
+  );
+}
+
+/** One sentence telling the current person what to do now, based on their role and the status. */
+function NextStep({ env, user, step, onNext }: { env: Envelope; user: User; step: 'layout' | 'fill'; onNext: () => void }) {
+  const sender = isSender(env, user);
+  const recipientName = env.recipient?.name ?? 'the recipient';
+  let tone = 'todo';
+  let text: string;
+  let action: React.ReactNode = null;
+  if (env.status === 'draft' && sender && step === 'layout') {
+    text = 'Step 1 of 2: place the boxes. Click "Load Master Agreement layout" for the standard 17, or click the page to add your own.';
+    action = <button className="primary" onClick={onNext}>Next: fill and send →</button>;
+  } else if (env.status === 'draft' && sender) {
+    text = 'Step 2 of 2: fill in your boxes (orange, on page 2), enter who it goes to on the right, then press "Sign and send".';
+  } else if (env.status === 'sent' && isRecipient(env, user)) {
+    text = 'Your turn: fill in the blue boxes on both pages, then press "Finish and sign".';
+  } else if (env.status === 'sent') {
+    tone = 'wait';
+    text = `Sent. Waiting for ${recipientName} to fill in and sign. You can't change anything now.`;
+  } else {
+    tone = 'done';
+    text = 'Completed. Both sides signed and the document is locked.';
+  }
+  return (
+    <div className={`next-step next-${tone}`}>
+      <span>{text}</span>
+      {action}
+    </div>
   );
 }

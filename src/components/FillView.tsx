@@ -33,6 +33,15 @@ export function FillView({ env, doc, user, onChanged }: Props) {
     [env.fields, draft, sender, recipientTurn],
   );
   const errorById = new Map(errors.map((e) => [e.fieldId, e.error]));
+  const fieldById = new Map(env.fields.map((f) => [f.id, f]));
+  const remaining = editable.filter((f) => errorById.has(f.id)).length;
+
+  // Scroll to a box on the page and put the cursor in it.
+  function jumpTo(fieldId: string) {
+    const el = document.querySelector<HTMLElement>(`[data-field-id="${fieldId}"]`);
+    el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    el?.querySelector('input')?.focus({ preventScroll: true });
+  }
 
   function changedPatch(): Record<string, FieldValue> {
     const patch: Record<string, FieldValue> = {};
@@ -94,27 +103,56 @@ export function FillView({ env, doc, user, onChanged }: Props) {
           <>
             <h3>Fill your fields, then send</h3>
             <p className="hint">Your Print Name and Date fill in automatically when you send.</p>
+            <Progress remaining={remaining} total={editable.length} onJump={() => { const f = editable.find((x) => errorById.has(x.id)); if (f) jumpTo(f.id); }} />
             <label>Recipient name<input value={recipient.name} onChange={(e) => setRecipient({ ...recipient, name: e.target.value })} /></label>
-            <label>Recipient email<input list="known-users" value={recipient.email} onChange={(e) => setRecipient({ ...recipient, email: e.target.value })} /></label>
+            <label>Recipient email<input list="known-users" value={recipient.email} onChange={(e) => {
+              // Picking a known person's email fills in their name too.
+              const known = USERS.find((u) => u.email === e.target.value.trim().toLowerCase());
+              setRecipient({ email: e.target.value, name: known && !recipient.name ? known.name : recipient.name });
+            }} /></label>
             <datalist id="known-users">
               {USERS.filter((u) => u.id !== user.id).map((u) => <option key={u.id} value={u.email}>{u.name}</option>)}
             </datalist>
-            <button onClick={submit}>Send to recipient</button>
+            <button className="primary big" onClick={submit}>Sign and send →</button>
           </>
         )}
         {recipientTurn && (
           <>
             <h3>Fill in and sign</h3>
             <p className="hint">Your Print Name and Date fill in automatically when you finish.</p>
-            <button onClick={submit}>Finish and sign</button>
+            <Progress remaining={remaining} total={editable.length} onJump={() => { const f = editable.find((x) => errorById.has(x.id)); if (f) jumpTo(f.id); }} />
+            <button className="primary big" onClick={submit}>Finish and sign ✓</button>
           </>
         )}
         {!sender && !recipientTurn && <p className="hint">This document is read-only for you.</p>}
         {message && <p className="error">{message}</p>}
         {submitted && errors.length > 0 && (
-          <ul className="error">{errors.map((e) => <li key={e.fieldId}>{e.error}</li>)}</ul>
+          <ul className="error-list">
+            {errors.map((e) => (
+              <li key={e.fieldId}>
+                <button className="link" onClick={() => jumpTo(e.fieldId)}>
+                  {e.error} <span className="where">page {(fieldById.get(e.fieldId)?.page ?? 0) + 1} →</span>
+                </button>
+              </li>
+            ))}
+          </ul>
         )}
       </aside>
+    </div>
+  );
+}
+
+/** "3 of 11 boxes left" with a button that jumps to the next empty one. */
+function Progress({ remaining, total, onJump }: { remaining: number; total: number; onJump: () => void }) {
+  if (total === 0) return null;
+  const done = total - remaining;
+  return (
+    <div className="progress">
+      <div className="progress-bar"><span style={{ width: `${(done / total) * 100}%` }} /></div>
+      <div className="progress-text">
+        {remaining === 0 ? 'All your boxes are filled.' : `${done} of ${total} of your boxes done.`}
+        {remaining > 0 && <button className="link" onClick={onJump}>Go to next empty box →</button>}
+      </div>
     </div>
   );
 }

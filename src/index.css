@@ -67,3 +67,28 @@ th, td { text-align: left; padding: 8px; border-bottom: 1px solid #eee; }
 .hashes { list-style: none; padding: 4px 0 0; margin: 0; display: grid; gap: 2px; }
 .hashes li { display: flex; gap: 12px; font-variant-numeric: tabular-nums; }
 .hashes code { color: #555; }
+
+/* Buttons and guidance */
+button { transition: background .15s, box-shadow .15s; }
+button:hover { box-shadow: 0 2px 6px rgba(36, 87, 197, .25); }
+button:focus-visible, .btn-link:focus-visible { outline: 3px solid #9bb7f0; outline-offset: 2px; }
+button.primary { background: #2457c5; color: #fff; font-weight: 600; }
+button.big { padding: 12px 16px; font-size: 16px; width: 100%; }
+button.link { background: none; border: none; color: inherit; padding: 0; text-align: left; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+button.link:hover { box-shadow: none; }
+button.step { background: #fff; color: #2457c5; border-radius: 20px; }
+button.step.active { background: #2457c5; color: #fff; }
+.btn-link { display: inline-block; padding: 5px 12px; border-radius: 4px; border: 1px solid #2457c5; color: #2457c5; text-decoration: none; font-weight: 600; white-space: nowrap; }
+.btn-link.primary { background: #2457c5; color: #fff; }
+.next-step { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: space-between; margin: 0 16px 12px; padding: 10px 14px; border-radius: 6px; font-weight: 600; }
+.next-todo { background: #e6edfb; color: #1b3d8f; border: 1px solid #b9cbf2; }
+.next-wait { background: #fff4d6; color: #7a5300; border: 1px solid #f0d58a; }
+.next-done { background: #e3f5e8; color: #157a2e; border: 1px solid #a9dcb7; }
+.progress { display: flex; flex-direction: column; gap: 4px; }
+.progress-bar { height: 6px; background: #e2e5ec; border-radius: 3px; overflow: hidden; }
+.progress-bar span { display: block; height: 100%; background: #2457c5; transition: width .2s; }
+.progress-text { font-size: 13px; color: #444; display: flex; flex-direction: column; gap: 2px; }
+.progress-text .link { color: #2457c5; }
+.error-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 4px; color: #b00020; font-size: 14px; }
+.error-list .where { white-space: nowrap; font-weight: 600; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }

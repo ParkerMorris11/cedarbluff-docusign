@@ -28,7 +28,7 @@ export function DocumentList() {
             <option key={d.id} value={d.id}>{d.title}</option>
           ))}
         </select>
-        <button onClick={create}>New envelope</button>
+        <button className="primary" onClick={create}>+ New envelope</button>
       </div>
       {error && <p className="error">{error}</p>}
       {envelopes && envelopes.length === 0 && <p>No documents yet.</p>}
@@ -50,7 +50,7 @@ export function DocumentList() {
                   <td><StatusBadge status={env.status} /></td>
                   <td>{new Date(env.completedAt ?? env.sentAt ?? env.createdAt).toLocaleString()}</td>
                   <td>
-                    <Link to={`/envelope/${env.id}`}>{needsMe ? (mine ? 'Edit' : 'Sign') : 'View'}</Link>
+                    <Link className={needsMe ? 'btn-link primary' : 'btn-link'} to={`/envelope/${env.id}`}>{needsMe ? (mine ? 'Continue →' : 'Sign now →') : 'View'}</Link>
                   </td>
                 </tr>
               );

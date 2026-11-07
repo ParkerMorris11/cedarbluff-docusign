@@ -56,8 +56,10 @@ export type Action =
   | { type: 'issue'; recipient: Recipient }
   | { type: 'complete' };
 
-function today(now: Date): string {
-  return now.toISOString().slice(0, 10); // YYYY-MM-DD
+/** The signer's local calendar date as YYYY-MM-DD (not UTC, which can be a day ahead in the evening). */
+export function localDate(now: Date): string {
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
 }
 
 /** Fill signerName and auto-date fields for one side, at the moment that side signs. */
@@ -72,7 +74,7 @@ export function autoFill(
   for (const f of fields) {
     if (f.assignee !== assignee) continue;
     if (f.type === 'signerName') next[f.id] = signer.name;
-    if (f.type === 'date' && f.autoFillDate) next[f.id] = today(now);
+    if (f.type === 'date' && f.autoFillDate) next[f.id] = localDate(now);
   }
   return next;
 }

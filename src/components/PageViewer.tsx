@@ -31,6 +31,7 @@ export function PageViewer({ doc, fields, renderField, fieldClassName, onPagePoi
             .map((f) => (
               <div
                 key={f.id}
+                data-field-id={f.id}
                 className={`field field-${f.assignee} ${fieldClassName?.(f) ?? ''}`}
                 style={{ left: `${f.x * 100}%`, top: `${f.y * 100}%`, width: `${f.w * 100}%`, height: `${f.h * 100}%` }}
                 title={`${f.label} (${f.assignee}${f.required ? ', required' : ''})`}

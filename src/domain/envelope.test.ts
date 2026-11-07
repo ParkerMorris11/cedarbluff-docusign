@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { canEditField, canEditLayout, canView, transition } from './envelope';
+import { canEditField, canEditLayout, canView, localDate, transition } from './envelope';
 import { masterAgreementLayout, USERS } from './seed';
 import type { Envelope } from './types';
 import { validateValue } from './validation';
@@ -43,7 +43,7 @@ describe('transition', () => {
     const env = sent();
     expect(env.status).toBe('sent');
     expect(env.values['lsfs-print-name']).toBe('Alex Rivera');
-    expect(env.values['lsfs-date']).toBe('2026-11-08');
+    expect(env.values['lsfs-date']).toBe(localDate(now));
   });
 
   it('refuses to issue when sender required fields are missing', () => {
@@ -66,6 +66,13 @@ describe('transition', () => {
   it('refuses to complete with invalid recipient fields', () => {
     const env = { ...sent(), values: { ...sent().values, ...recipientValues, 'cust-email': 'not-an-email' } };
     expect(() => transition(env, { type: 'complete' }, sam, now)).toThrow(/required fields/);
+  });
+});
+
+describe('signing date', () => {
+  it("uses the signer's local date, even late in the evening", () => {
+    expect(localDate(new Date(2026, 10, 6, 23, 30))).toBe('2026-11-06');
+    expect(localDate(new Date(2026, 0, 2, 0, 5))).toBe('2026-01-02');
   });
 });
 
