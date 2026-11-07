@@ -16,6 +16,7 @@ npm run build   # type-check + production build
 ```
 
 Walkthrough:
+
 1. You start as **Alex Rivera** (Lone Star Fleet Services). Open the seeded draft (Continue).
 2. Click **Load Master Agreement layout** (17 fields), or pick a type and click the page to place
    fields yourself. Drag to move; click a field to edit its label, type, assignee, required flag.
@@ -184,11 +185,12 @@ email sent to both parties).
 <!-- Parker: this section must describe only what you actually did. Read it, correct anything that
      isn't accurate, and rewrite it in your own words before submitting. -->
 
-- **Planning (~20 minutes, before the 90-minute time box):** I used Perplexity Computer to draft the
-  spec (`CLAUDE.md` in this repo): stack, data model, layers, rules, the target field coordinates
-  (measured from the PDF text layer), build order, and a cut list.
-- **Build:** I used Claude Code to write the code from that spec, and to explain the decisions to me as
-  it went.
+- **Planning I used Perplexity computer to intake the ReadMe context from the email and create a SPEC.MD with a list of notes of logic I chose from myself like the audit trail. I used my EGM skill (Elephant Goldfish Model) to review the Spec.MD and find any missing holes we need to resolve before passing this off to Claude to build.
+<img width="1999" height="1268" alt="image" src="https://github.com/user-attachments/assets/79d85887-40dc-42d6-a2ac-b6dfd61adf32" />
+
+
+- **Build:** I used Claude Code to write the code from that spec.MD file.
+  
 - **Where I changed what the AI gave me:** Claude Code reviewed the Perplexity spec before building and
   found five problems. I accepted all five (listed at the bottom of `CLAUDE.md`):
   1. The spec cached envelopes in Zustand as well as localStorage, which is two sources of truth.
@@ -199,12 +201,9 @@ email sent to both parties).
      Single reads are now checked too.
   4. Async hashing could fork the audit chain, so appends are now queued.
   5. React Router was missing from the stack.
-- **Testing caught a real bug:** a browser check at phone width showed the document pages collapsing to
-  zero width (a flexbox setting). It's fixed in `f384f30`. A second run, on my Mac in the evening,
-  showed the auto-filled signing date was a day ahead because it used UTC. It now uses the signer's
-  local date (`2db15e9`), with tests for both sides' dates.
-- Some of the spec's field coordinates were nudged so fields sit inside the boxes. The Title fields
-  moved right so they don't cover the "Print signer's title" label.
+
+- **Review:** I used Claude to review the grading requirements and identify any gaps to resolve any missing parts and focus on creating tech stack diagrams to show how this works!
+   
 
 ## 6. What's unfinished
 
