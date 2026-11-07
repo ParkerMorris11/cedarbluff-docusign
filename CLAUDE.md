@@ -2,6 +2,8 @@
 
 > Planning spec written before the 90-minute build (drafted with Perplexity Computer).
 > See "Changes agreed after review" at the bottom for what changed before building.
+> This is the pre-build plan, kept as written. Where it differs from the code (routes, event names,
+> audit file location, function signatures), the code and WRITEUP.md are current.
 
 You are building a take-home project for an interview: a simplified DocuSign in React.
 The evaluator cares about **decisions, structure, and correctness** — not visual design,

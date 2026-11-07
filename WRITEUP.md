@@ -52,7 +52,7 @@ Each layer only calls the one below it. `domain/` imports nothing else from the 
 
 | Concept | Type | Changes? |
 |---|---|---|
-| Source document (the blank PDF) | `SourceDocument` — id, title, page images and sizes | Never |
+| Source document (the blank document, stored as page images) | `SourceDocument` — id, title, page images and sizes | Never |
 | Field layout (where boxes go) | `FieldDefinition[]` on the envelope — page, x/y/w/h fractions, type, label, required, assignee | Only while `draft`, only by the sender |
 | Values (what people typed) | `values: Record<fieldId, FieldValue>` on the envelope | Sender's while `draft`, recipient's while `sent`, nobody's once `completed` |
 
@@ -84,13 +84,15 @@ can be converted to points later when needed.
 different timing, so they're different data. It also means the same layout could be reused as a
 template later.
 *Trade-off:* rendering a field means a lookup by id, and deleting a field must also drop its value
-(`applyLayout` does this).
+(`applyLayout` does this), and so must changing who fills a field or its type, or the recipient
+could receive a box pre-filled by the sender.
 
 **3. Rules live in pure domain functions, and the service re-checks them on every call.**
 `canView`, `canEditLayout`, `canEditField`, `transition`, and `validateFields` are used by the UI to
 decide what to show *and* by `EnvelopeService` before every write. Hiding a button is never the
 protection. Single reads are checked too: `getForUser` returns the same "not found" for missing and
-forbidden envelopes, so ids can't be probed.
+forbidden envelopes, so the service never reveals whether an id exists (with a real backend, that stops
+probing; today anyone with DevTools can read localStorage).
 *Trade-off:* the UI computes permissions it could have been told by a server. Without a backend, the
 service is the trust boundary, so a determined user with DevTools can still edit localStorage. A real
 backend would run the same domain functions server-side.
@@ -212,7 +214,7 @@ email sent to both parties).
 - **Security is simulated.** The rules run in the browser, so anyone with DevTools can edit
   localStorage. That's acceptable for a demo without a backend, and the domain functions are ready to
   run server-side.
-- **Tests cover the domain, service access, checklist, progress and audit chain** (29 tests). There are no component or
+- **Tests cover the domain, service access, checklist, progress and audit chain** (31 tests). There are no component or
   end-to-end tests in the repo; the full flow was checked with a scripted browser run that isn't
   committed.
 - **One source document.** The "pick a document" step exists but only the Master Agreement is

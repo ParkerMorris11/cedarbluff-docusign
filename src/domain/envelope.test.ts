@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { canEditField, canEditLayout, canView, localDate, transition } from './envelope';
+import { applyLayout, applyValues, canEditField, canEditLayout, canView, localDate, transition } from './envelope';
 import { masterAgreementLayout, USERS } from './seed';
 import type { Envelope } from './types';
 import { validateValue } from './validation';
@@ -121,5 +121,18 @@ describe('validation', () => {
     expect(validateValue(field('phone'), '555-0142')).not.toBeNull();
     expect(validateValue(field('text'), '  ')).not.toBeNull();
     expect(validateValue(field('text', false), '')).toBeNull();
+  });
+});
+
+describe('layout and value edits', () => {
+  it("drops a field's value when its filler changes, so the recipient never gets the sender's text", () => {
+    const env = { ...draft(), values: { 'lsfs-title': 'Sales Director' } };
+    const fields = env.fields.map((f) => (f.id === 'lsfs-title' ? { ...f, assignee: 'recipient' as const } : f));
+    expect(applyLayout(env, fields, alex).values['lsfs-title']).toBeUndefined();
+    expect(applyLayout(env, env.fields, alex).values['lsfs-title']).toBe('Sales Director');
+  });
+
+  it('rejects values that are not text or a signature', () => {
+    expect(() => applyValues(draft(), { 'lsfs-title': null as never }, alex)).toThrow(/invalid value/);
   });
 });

@@ -115,12 +115,20 @@ export function transition(env: Envelope, action: Action, actor: User, now: Date
 }
 
 /** Applies a value patch, refusing any field the actor may not edit right now. */
+function isFieldValue(v: unknown): v is FieldValue {
+  if (typeof v === 'string') return true;
+  if (typeof v !== 'object' || v === null) return false;
+  const o = v as Record<string, unknown>;
+  return (o.kind === 'typed' && typeof o.text === 'string') || (o.kind === 'drawn' && typeof o.dataUrl === 'string');
+}
+
 export function applyValues(env: Envelope, patch: Record<string, FieldValue>, actor: User): Envelope {
   const byId = new Map(env.fields.map((f) => [f.id, f]));
   for (const fieldId of Object.keys(patch)) {
     const field = byId.get(fieldId);
     if (!field) throw new DomainError(`Unknown field ${fieldId}`);
     if (!canEditField(env, field, actor)) throw new DomainError(`You cannot edit "${field.label}" right now`);
+    if (!isFieldValue(patch[fieldId])) throw new DomainError(`"${field.label}" has an invalid value`);
   }
   return { ...env, values: { ...env.values, ...patch } };
 }
@@ -132,7 +140,12 @@ export function applyLayout(env: Envelope, fields: FieldDefinition[], actor: Use
     const inside = f.x >= 0 && f.y >= 0 && f.w > 0 && f.h > 0 && f.x + f.w <= 1.0001 && f.y + f.h <= 1.0001;
     if (!inside) throw new DomainError(`Field "${f.label}" is outside the page`);
   }
-  const ids = new Set(fields.map((f) => f.id));
-  const values = Object.fromEntries(Object.entries(env.values).filter(([id]) => ids.has(id)));
+  // A value survives only if its field still exists with the same type and the same person filling it.
+  // Otherwise, e.g. a sender-filled field reassigned to the recipient would arrive pre-filled.
+  const before = new Map(env.fields.map((f) => [f.id, f]));
+  const keep = new Set(
+    fields.filter((f) => before.get(f.id)?.assignee === f.assignee && before.get(f.id)?.type === f.type).map((f) => f.id),
+  );
+  const values = Object.fromEntries(Object.entries(env.values).filter(([id]) => keep.has(id)));
   return { ...env, fields, values };
 }
