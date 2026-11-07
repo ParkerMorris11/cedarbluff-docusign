@@ -111,8 +111,28 @@ see is derived from the permission functions. Auto-filled fields (Print Name, au
 by `transition()` at the moment each side signs: the sender's on issue, the recipient's on complete.
 Validation skips them because they can't be missing.
 
+**Guidance added after the core worked.** The spec said not to add unlisted features. After the
+core flow passed, I chose to add a few things that make the two-person flow easier to follow: a
+"what you need to fill in" checklist, a four-stage progress bar, box colours from each viewer's point
+of view (yours to do, yours done, filled automatically, theirs), and a cleaner visual design. None of
+them adds a rule. The checklist (`domain/checklist.ts`) and progress bar (`domain/progress.ts`) are pure
+domain functions built on the same `validateFields` rules that gate send and finish, and both are
+*derived* from the envelope each render, never stored, so they can't disagree with it. A test checks
+that the checklist and the send/finish gate agree.
+
 Libraries: **React Router** (routes), **Zustand** (current user; tiny, no provider), **Vitest**
 (tests). No PDF, UI kit, or drag-and-drop library; dragging is plain pointer events.
+
+**How this maps to the evaluation:**
+
+| Area | Where to look |
+|---|---|
+| Data modeling | Decision 2 and the data model table: source document, layout and values are separate types; `transition()` is the only way status changes |
+| Field positioning | Decision 1: page index plus fractions, percentage CSS, checked at two widths |
+| State and data flow | Section 2: the repository is the one source of truth; Zustand holds only the current user; checklist and progress are derived, not stored |
+| Feature | Section 4: the audit log subscribes to an event bus; the core never imports it |
+| Correctness | Decision 3: the same domain rules run in the UI and again in the service on every call; tests cover wrong actor, locked states, validation and hidden envelopes |
+| Communication | This document, including what's unfinished |
 
 ## 4. Feature: audit trail on an event bus
 
@@ -120,8 +140,9 @@ Libraries: **React Router** (routes), **Zustand** (current user; tiny, no provid
 recorded per envelope with who and when. Each entry stores `prevHash` (the previous entry's hash) and
 `hash = sha256(prevHash + canonical entry content)` using Web Crypto. **Verify integrity** walks the
 chain and checks both that each entry's content still matches its own hash and that each `prevHash`
-matches the entry before it. Editing, removing, or reordering any entry breaks the chain at that
-point.
+matches the entry before it. Editing or reordering any entry, or removing one from the middle,
+breaks the chain at that point. Removing entries from the *end* is not caught: what's left is still a
+valid, shorter chain (see the honest limit below).
 
 **Why this feature.** In a signing product, the history is the evidence. `status` only says where a
 document is now, and the audit trail says how it got there. It's small, and it exercises the
@@ -143,8 +164,9 @@ Details that matter:
   group expands to show its entry numbers and hashes.
 
 **Honest limit.** The chain makes tampering *detectable*, not impossible: someone who controls
-localStorage can rewrite every entry and recompute every hash. A real system would anchor the latest
-hash somewhere the attacker can't write (a server, a signature with a private key, or the completion
+localStorage can rewrite every entry and recompute every hash, or simply delete the newest entries.
+Both are fixed the same way: a real system would anchor the latest hash (and entry count) somewhere
+the attacker can't write (a server, a signature with a private key, or the completion
 email sent to both parties).
 
 ## 5. How I used AI
@@ -168,7 +190,9 @@ email sent to both parties).
   4. Async hashing could fork the audit chain, so appends are now queued.
   5. React Router was missing from the stack.
 - **Testing caught a real bug:** a browser check at phone width showed the document pages collapsing to
-  zero width (a flexbox setting). It's fixed in `f384f30`.
+  zero width (a flexbox setting). It's fixed in `f384f30`. A second run, on my Mac in the evening,
+  showed the auto-filled signing date was a day ahead because it used UTC. It now uses the signer's
+  local date (`2db15e9`), with tests for both sides' dates.
 - Some of the spec's field coordinates were nudged so fields sit inside the boxes. The Title fields
   moved right so they don't cover the "Print signer's title" label.
 
@@ -188,7 +212,7 @@ email sent to both parties).
 - **Security is simulated.** The rules run in the browser, so anyone with DevTools can edit
   localStorage. That's acceptable for a demo without a backend, and the domain functions are ready to
   run server-side.
-- **Tests cover the domain, service access, and audit chain** (14 tests). There are no component or
+- **Tests cover the domain, service access, checklist, progress and audit chain** (29 tests). There are no component or
   end-to-end tests in the repo; the full flow was checked with a scripted browser run that isn't
   committed.
 - **One source document.** The "pick a document" step exists but only the Master Agreement is

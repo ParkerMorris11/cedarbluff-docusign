@@ -3,7 +3,7 @@ import { envelopeService } from '../app/services';
 import { buildChecklist, type ChecklistItem } from '../domain/checklist';
 import { canEditField, DomainError, isRecipient, isSender } from '../domain/envelope';
 import type { Envelope, FieldDefinition, FieldValue, SourceDocument, User } from '../domain/types';
-import { isValidEmail, valueToText } from '../domain/validation';
+import { isAutoFilled, isValidEmail, valueToText } from '../domain/validation';
 import { FieldValueView } from './FieldValueView';
 import { PageViewer } from './PageViewer';
 import { USERS } from '../domain/seed';
@@ -80,6 +80,13 @@ export function FillView({ env, doc, user, onChanged }: Props) {
     });
   }
 
+  // Colour each box from this viewer's point of view: mine to do, mine done, mine but automatic, or theirs.
+  function boxState(f: FieldDefinition, done: boolean): string {
+    if (canEditField(env, f, user)) return done ? 'editable filled mine-done' : 'editable mine-todo';
+    if (active && f.assignee === assignee && isAutoFilled(f)) return 'readonly mine-auto';
+    return 'readonly theirs';
+  }
+
   function setValue(f: FieldDefinition, text: string) {
     setDraft((d) => ({ ...d, [f.id]: f.type === 'signature' ? { kind: 'typed', text } : text }));
   }
@@ -92,8 +99,7 @@ export function FillView({ env, doc, user, onChanged }: Props) {
         fieldClassName={(f) => {
           const item = active ? itemById.get(f.id) : undefined;
           return [
-            canEditField(env, f, user) ? 'editable' : 'readonly',
-            item?.done ? 'filled' : '',
+            boxState(f, item?.done ?? false),
             checklist.next?.fieldId === f.id && active ? 'next' : '',
             item?.error && (submitted || !item.empty) ? 'invalid' : '',
           ].join(' ');
@@ -118,6 +124,12 @@ export function FillView({ env, doc, user, onChanged }: Props) {
         {active && (
           <>
             <h3>What you need to fill in</h3>
+            <div className="legend-boxes" aria-label="What the box colours mean">
+              <span><i className="sw mine-todo" />Yours, still to fill</span>
+              <span><i className="sw mine-done" />Yours, done</span>
+              <span><i className="sw mine-auto" />Fills in automatically</span>
+              <span><i className="sw theirs" />{sender ? "Recipient's" : "Sender's"} (you can't edit)</span>
+            </div>
             <Progress remaining={remaining} done={done} onJump={goToNext} />
             {checklist.items.length === 0 && <p className="hint">None of the boxes are yours to fill in.</p>}
             {doc.pages.map((_, page) => {

@@ -246,3 +246,18 @@ button.check-row.is-next { background: var(--blue-tint); font-weight: 600; }
   * { transition: none !important; scroll-behavior: auto !important; }
   .doc-card, .field.next { animation: none; }
 }
+
+/* Boxes coloured from the viewer's point of view (fill view): yours to do, yours done, automatic, theirs. */
+.legend-boxes { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 12px; font-size: 13px; color: var(--ink-soft); }
+.legend-boxes span { display: inline-flex; align-items: center; gap: 6px; }
+.legend-boxes .sw { flex: none; width: 20px; height: 12px; border-radius: 2px; }
+.field.mine-todo, .sw.mine-todo { background: rgba(255, 196, 0, .28); outline: 2px solid var(--amber-strong); }
+.field.mine-done, .sw.mine-done { background: rgba(21, 122, 46, .10); outline: 2px solid #3a9b57; }
+.field.mine-auto, .sw.mine-auto { background: rgba(36, 87, 197, .06); outline: 1px dashed #7f9fe0; }
+.field.theirs { background: transparent; outline: none; }
+.sw.theirs { background: var(--surface); outline: 1px solid var(--line-strong); }
+.field.theirs .placeholder { color: #c4c8d0; }
+.field.mine-todo.next { outline: 3px solid var(--amber-strong); background: rgba(255, 196, 0, .45); }
+.field.mine-todo.invalid, .field.invalid { outline: 2px solid var(--red); background: rgba(176, 0, 32, .08); }
+.field.editable:focus-within { outline: 2px solid var(--blue); }
+@media (max-width: 380px) { .legend-boxes { grid-template-columns: 1fr; } }

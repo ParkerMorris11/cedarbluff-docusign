@@ -70,9 +70,9 @@ function NextStep({ env, user, step, onNext }: { env: Envelope; user: User; step
     text = 'Step 1 of 2: place the boxes. Click "Load Master Agreement layout" for the standard 17, or click the page to add your own.';
     action = <button className="primary" onClick={onNext}>Next: fill and send →</button>;
   } else if (env.status === 'draft' && sender) {
-    text = 'Step 2 of 2: fill in your boxes (orange, on page 2), enter who it goes to on the right, then press "Sign and send".';
+    text = 'Step 2 of 2: fill in your yellow boxes on page 2, enter who it goes to on the right, then press "Sign and send".';
   } else if (env.status === 'sent' && isRecipient(env, user)) {
-    text = 'Your turn: fill in the blue boxes on both pages, then press "Finish and sign".';
+    text = 'Your turn: fill in the yellow boxes on both pages, then press "Finish and sign".';
   } else if (env.status === 'sent') {
     tone = 'wait';
     text = `Sent. Waiting for ${recipientName} to fill in and sign. You can't change anything now.`;
