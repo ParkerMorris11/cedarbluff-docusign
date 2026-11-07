@@ -1,0 +1,50 @@
+* { box-sizing: border-box; }
+body { margin: 0; font-family: system-ui, sans-serif; color: #1d1d1f; background: #f4f4f6; }
+button { font: inherit; padding: 6px 12px; border: 1px solid #2457c5; background: #2457c5; color: #fff; border-radius: 4px; cursor: pointer; }
+button.secondary { background: #fff; color: #2457c5; }
+button.danger { background: #fff; color: #b00020; border-color: #b00020; }
+input, select { font: inherit; padding: 4px 6px; }
+.header { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; background: #fff; border-bottom: 1px solid #ddd; }
+.brand { font-weight: 700; text-decoration: none; color: inherit; }
+.list { max-width: 1000px; margin: 0 auto; padding: 16px; }
+.row { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+table { width: 100%; border-collapse: collapse; background: #fff; }
+th, td { text-align: left; padding: 8px; border-bottom: 1px solid #eee; }
+.badge { padding: 2px 8px; border-radius: 10px; font-size: 12px; text-transform: uppercase; }
+.badge-draft { background: #eee; }
+.badge-sent { background: #fff1c2; }
+.badge-completed { background: #d6f5dd; }
+.error { color: #b00020; }
+.ok { color: #157a2e; }
+.hint { color: #666; font-size: 13px; }
+.envelope-bar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; padding: 10px 16px; }
+.steps { display: flex; gap: 6px; margin-left: auto; }
+.workspace { display: flex; gap: 16px; padding: 0 16px; align-items: flex-start; }
+.pages { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 16px; }
+.panel { width: 280px; flex-shrink: 0; position: sticky; top: 8px; background: #fff; padding: 12px; border: 1px solid #ddd; display: flex; flex-direction: column; gap: 8px; }
+.panel label { display: flex; flex-direction: column; font-size: 13px; gap: 2px; }
+.panel label.check { flex-direction: row; align-items: center; gap: 6px; }
+.field-editor { border-top: 1px solid #ddd; padding-top: 8px; display: flex; flex-direction: column; gap: 8px; }
+@media (max-width: 800px) { .workspace { flex-direction: column; } .panel { width: 100%; position: static; } }
+
+/* The page box keeps the page's aspect ratio; fields use % so they track any size. */
+.page { position: relative; width: 100%; background-size: 100% 100%; background-color: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.2); container-type: inline-size; }
+.field { position: absolute; display: flex; align-items: center; font-size: 1.15cqw; overflow: hidden; border-radius: 2px; }
+.field-recipient { background: rgba(36, 87, 197, .12); outline: 1px dashed rgba(36, 87, 197, .6); }
+.field-sender { background: rgba(214, 130, 0, .14); outline: 1px dashed rgba(214, 130, 0, .7); }
+.field.readonly { background: transparent; outline: none; }
+.field.editable { outline-style: solid; }
+.field.invalid { outline: 2px solid #b00020; }
+.field.draggable { cursor: move; touch-action: none; user-select: none; }
+.field.selected { outline: 2px solid #111; }
+.field-label { padding: 0 3px; white-space: nowrap; }
+.field input { width: 100%; height: 100%; border: none; background: transparent; font-size: inherit; padding: 0 3px; }
+.placeholder { color: #999; padding: 0 3px; white-space: nowrap; }
+.field img { height: 100%; }
+.script { font-family: 'Caveat', cursive; font-size: 1.6em; padding: 0 3px; }
+.field input.script { font-size: 1.6em; }
+
+.audit { margin: 16px; padding: 12px; background: #fff; border: 1px solid #ddd; }
+.audit ol { padding-left: 20px; font-size: 13px; }
+.audit li { margin: 4px 0; }
+.audit code { margin-left: 8px; color: #666; }
