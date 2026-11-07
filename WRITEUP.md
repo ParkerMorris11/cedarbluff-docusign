@@ -139,6 +139,8 @@ Libraries: **React Router** (routes), **Zustand** (current user; tiny, no provid
 
 ## 4. Feature: audit trail on an event bus
 
+![Audit trail](docs/audit-trail.png)
+
 **What it does.** Every change (created, layout updated, values updated, issued, completed) is
 recorded per envelope with who and when. Each entry stores `prevHash` (the previous entry's hash) and
 `hash = sha256(prevHash + canonical entry content)` using Web Crypto. **Verify integrity** walks the

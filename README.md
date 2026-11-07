@@ -17,6 +17,7 @@ npm test
 | `CLAUDE.md` | The pre-build plan (spec), kept as written |
 | `src/` | The app: `domain/`, `service/`, `repository/`, `features/audit/`, `store/`, `app/`, `components/` |
 | `docs/architecture.png` | Layer diagram |
+| `docs/audit-trail.png` | How the audit trail records and verifies |
 | `docs/plain-flow.png` | Plain-language flow of how it works |
 | `docs/steps-both-users.png` | Every step for the sender and the recipient, end to end |
 | `sample/master-agreement.pdf` | The original sample document |
