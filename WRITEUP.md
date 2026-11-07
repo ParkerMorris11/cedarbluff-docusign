@@ -16,7 +16,7 @@ npm run build   # type-check + production build
 ```
 
 Walkthrough:
-1. You start as **Alex Rivera** (Lone Star Fleet Services). Open the seeded draft (Edit).
+1. You start as **Alex Rivera** (Lone Star Fleet Services). Open the seeded draft (Continue).
 2. Click **Load Master Agreement layout** (17 fields), or pick a type and click the page to place
    fields yourself. Drag to move; click a field to edit its label, type, assignee, required flag.
 3. Go to **2. Fill, sign and send**, fill Signature and Title, enter `Sam Chen` /

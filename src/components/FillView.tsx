@@ -167,6 +167,9 @@ export function FillView({ env, doc, user, onChanged }: Props) {
               setRecipient({ email: e.target.value, name: known && !recipient.name ? known.name : recipient.name });
             }} /></label>
             {recipient.email.trim() !== '' && !emailOk && <p className="check-error">Enter a full email address, like name@company.com.</p>}
+            {emailOk && !USERS.some((u) => u.email === recipient.email.trim().toLowerCase()) && (
+              <p className="hint">Heads up: this demo only has the four built-in users, so nobody could open a document sent to this address. Pick one from the list to try the full flow.</p>
+            )}
             <datalist id="known-users">
               {USERS.filter((u) => u.id !== user.id).map((u) => <option key={u.id} value={u.email}>{u.name}</option>)}
             </datalist>
