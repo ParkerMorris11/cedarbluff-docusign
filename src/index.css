@@ -25,7 +25,7 @@ th, td { text-align: left; padding: 8px; border-bottom: 1px solid #eee; }
 .panel label { display: flex; flex-direction: column; font-size: 13px; gap: 2px; }
 .panel label.check { flex-direction: row; align-items: center; gap: 6px; }
 .field-editor { border-top: 1px solid #ddd; padding-top: 8px; display: flex; flex-direction: column; gap: 8px; }
-@media (max-width: 800px) { .workspace { flex-direction: column; } .panel { width: 100%; position: static; } }
+@media (max-width: 800px) { .workspace { flex-direction: column; align-items: stretch; } .panel { width: 100%; position: static; } }
 
 /* The page box keeps the page's aspect ratio; fields use % so they track any size. */
 .page { position: relative; width: 100%; background-size: 100% 100%; background-color: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.2); container-type: inline-size; }
