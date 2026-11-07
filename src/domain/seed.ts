@@ -4,6 +4,7 @@ export const USERS: User[] = [
   { id: 'u-alex', name: 'Alex Rivera', email: 'alex@lonestarfleet.example', company: 'Lone Star Fleet Services' },
   { id: 'u-sam', name: 'Sam Chen', email: 'sam@acmecorp.example', company: 'Acme Corp' },
   { id: 'u-dana', name: 'Dana Brooks', email: 'dana@globex.example', company: 'Globex' },
+  { id: 'u-parker', name: 'Parker Morris', email: 'parker@morrisfleet.example', company: 'Morris Fleet Co.' },
 ];
 
 export const MASTER_AGREEMENT_ID = 'master-agreement';

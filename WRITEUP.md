@@ -23,6 +23,8 @@ Walkthrough:
    `sam@acmecorp.example`, and send.
 4. Switch the header to **Sam Chen**, open the document, fill the customer fields, and Finish.
 5. Switch to **Dana Brooks**: she sees nothing, and pasting the envelope URL shows "not found".
+   (A fourth user, **Parker Morris** at a made-up "Morris Fleet Co.", `parker@morrisfleet.example`,
+   can be used as a recipient instead of Sam.)
 6. In the audit panel, click **Verify integrity**. To see tampering detected, edit any entry in
    `localStorage["minisign.audit.v1"]` in DevTools and verify again.
 
@@ -136,6 +138,9 @@ Details that matter:
 - **Events fire only after the save succeeds**, so the log never records a change that didn't happen.
   A failing listener is caught so it can't break the core action.
 - **Reading the trail uses the same access rule as the envelope.**
+- **The panel groups consecutive same-person, same-type entries** (e.g. "Filled in fields ×12") and
+  uses plain-English labels. This is display only: every entry is still stored and verified, and each
+  group expands to show its entry numbers and hashes.
 
 **Honest limit.** The chain makes tampering *detectable*, not impossible: someone who controls
 localStorage can rewrite every entry and recompute every hash. A real system would anchor the latest
@@ -176,8 +181,8 @@ email sent to both parties).
 - **Audit write can fail after the action.** The core change is saved first, then the audit appends.
   If the append failed, the log would be missing an entry. A real system would write both in one
   transaction (or an outbox).
-- **Noisy log.** Every field edit is its own `values.updated` entry. Batching per session would read
-  better.
+- **Chatty log storage.** Every field edit is stored as its own `values.updated` entry. The panel
+  groups them for reading, but storage isn't batched.
 - **Recipients must be one of the seeded users to sign.** Matching is by email, and there are no
   invitations or new accounts.
 - **Security is simulated.** The rules run in the browser, so anyone with DevTools can edit
