@@ -70,6 +70,17 @@ describe('transition', () => {
 });
 
 describe('signing date', () => {
+  it('fills each side with the date that side actually signed', () => {
+    const sentOn = new Date(2026, 10, 8, 9, 0); // Nov 8, 9:00 local
+    const finishedOn = new Date(2026, 10, 10, 16, 30); // Nov 10, 4:30 pm local
+    const issued = transition({ ...draft(), values: { ...senderValues } }, { type: 'issue', recipient: { name: 'Sam', email: sam.email } }, alex, sentOn);
+    expect(issued.values['lsfs-date']).toBe('2026-11-08');
+    expect(issued.values['cust-date']).toBeUndefined(); // recipient's date waits until they finish
+    const done = transition({ ...issued, values: { ...issued.values, ...recipientValues } }, { type: 'complete' }, sam, finishedOn);
+    expect(done.values['cust-date']).toBe('2026-11-10');
+    expect(done.values['lsfs-date']).toBe('2026-11-08'); // sender's date is not overwritten
+  });
+
   it("uses the signer's local date, even late in the evening", () => {
     expect(localDate(new Date(2026, 10, 6, 23, 30))).toBe('2026-11-06');
     expect(localDate(new Date(2026, 0, 2, 0, 5))).toBe('2026-01-02');
