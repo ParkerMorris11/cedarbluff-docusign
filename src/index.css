@@ -134,3 +134,18 @@ button.step.active { background: #2457c5; color: #fff; }
 .checklist li.ok .tick { color: #157a2e; }
 .checklist li.ok .link { color: #6b7280; }
 .checklist .pg { margin-left: auto; font-size: 12px; color: #888; }
+
+/* Boxes coloured from the viewer's point of view (fill view) */
+.pages-col { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+.legend-boxes { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; background: #fff; border: 1px solid #ddd; border-radius: 6px; padding: 8px 12px; position: sticky; top: 0; z-index: 2; }
+.legend-boxes span { display: inline-flex; align-items: center; gap: 6px; }
+.legend-boxes .sw { width: 22px; height: 12px; border-radius: 2px; display: inline-block; }
+.field.mine-todo, .sw.mine-todo { background: rgba(255, 196, 0, .30); outline: 2px solid #e0a800; }
+.field.mine-done, .sw.mine-done { background: rgba(21, 122, 46, .12); outline: 2px solid #3a9b57; }
+.field.mine-auto, .sw.mine-auto { background: rgba(36, 87, 197, .06); outline: 1px dashed #7f9fe0; }
+.field.theirs { background: transparent; outline: none; }
+.sw.theirs { background: #fff; outline: 1px solid #c8cdd8; }
+.field.theirs .placeholder { color: #c4c8d0; }
+@media (prefers-reduced-motion: no-preference) { .field.mine-todo { animation: nudge 2.4s ease-in-out infinite; } }
+@keyframes nudge { 50% { outline-color: #ffcf33; } }
+.field.invalid.mine-todo { outline: 2px solid #b00020; background: rgba(176, 0, 32, .08); }

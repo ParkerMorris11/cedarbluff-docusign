@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { envelopeService } from '../app/services';
 import { canEditField, DomainError, isRecipient, isSender } from '../domain/envelope';
 import type { Envelope, FieldDefinition, FieldValue, SourceDocument, User } from '../domain/types';
-import { validateFields, valueToText, type FieldError } from '../domain/validation';
+import { isAutoFilled, validateFields, valueToText, type FieldError } from '../domain/validation';
 import { FieldValueView } from './FieldValueView';
 import { PageViewer } from './PageViewer';
 import { USERS } from '../domain/seed';
@@ -35,6 +35,14 @@ export function FillView({ env, doc, user, onChanged }: Props) {
   const errorById = new Map(errors.map((e) => [e.fieldId, e.error]));
   const fieldById = new Map(env.fields.map((f) => [f.id, f]));
   const remaining = editable.filter((f) => errorById.has(f.id)).length;
+
+  // Colour each box from this person's point of view.
+  const myAssignee = sender ? 'sender' : recipientTurn ? 'recipient' : null;
+  function boxState(f: FieldDefinition): string {
+    if (canEditField(env, f, user)) return errorById.has(f.id) ? 'editable mine-todo' : 'editable mine-done';
+    if (myAssignee && f.assignee === myAssignee && isAutoFilled(f)) return 'readonly mine-auto';
+    return 'readonly theirs';
+  }
 
   // Scroll to a box on the page and put the cursor in it.
   function jumpTo(fieldId: string) {
@@ -76,11 +84,20 @@ export function FillView({ env, doc, user, onChanged }: Props) {
 
   return (
     <div className="workspace">
+      <div className="pages-col">
+      {(sender || recipientTurn) && (
+        <div className="legend-boxes">
+          <span><i className="sw mine-todo" /> Yours, still to fill</span>
+          <span><i className="sw mine-done" /> Yours, done</span>
+          <span><i className="sw mine-auto" /> Yours, fills in automatically</span>
+          <span><i className="sw theirs" /> {sender ? "Recipient's" : "Sender's"} (you can't edit)</span>
+        </div>
+      )}
       <PageViewer
         doc={doc}
         fields={env.fields}
         fieldClassName={(f) =>
-          [canEditField(env, f, user) ? 'editable' : 'readonly', submitted && errorById.has(f.id) ? 'invalid' : ''].join(' ')
+          [boxState(f), submitted && errorById.has(f.id) ? 'invalid' : ''].join(' ')
         }
         renderField={(f) =>
           canEditField(env, f, user) ? (
@@ -98,6 +115,7 @@ export function FillView({ env, doc, user, onChanged }: Props) {
           )
         }
       />
+      </div>
       <aside className="panel">
         {sender && (
           <>
