@@ -10,7 +10,7 @@ import { useCurrentUser } from '../store/currentUser';
 import { AuditPanel } from './AuditPanel';
 import { Builder } from './Builder';
 import { FillView } from './FillView';
-import { StatusBadge } from './StatusBadge';
+import { StatusBadge, StatusTrack } from './StatusBadge';
 
 /** One route for an envelope. What you can do here is derived from the permission rules. */
 export function EnvelopePage() {
@@ -33,6 +33,7 @@ export function EnvelopePage() {
         <Link to="/">← Documents</Link>
         <strong>{doc.title}</strong>
         <StatusBadge status={env.status} />
+        <div className="bar-track"><StatusTrack status={env.status} /></div>
         <span className="hint">
           From {sender?.name}{env.recipient ? ` to ${env.recipient.name} <${env.recipient.email}>` : ''}
           {env.sentAt && ` · sent ${new Date(env.sentAt).toLocaleString()}`}
