@@ -120,8 +120,9 @@ Libraries: **React Router** (routes), **Zustand** (current user; tiny, no provid
 recorded per envelope with who and when. Each entry stores `prevHash` (the previous entry's hash) and
 `hash = sha256(prevHash + canonical entry content)` using Web Crypto. **Verify integrity** walks the
 chain and checks both that each entry's content still matches its own hash and that each `prevHash`
-matches the entry before it. Editing, removing, or reordering any entry breaks the chain at that
-point.
+matches the entry before it. Editing or reordering any entry, or removing one from the middle,
+breaks the chain at that point. Removing entries from the *end* is not caught: what's left is still a
+valid, shorter chain (see the honest limit below).
 
 **Why this feature.** In a signing product, the history is the evidence. `status` only says where a
 document is now, and the audit trail says how it got there. It's small, and it exercises the
@@ -143,8 +144,9 @@ Details that matter:
   group expands to show its entry numbers and hashes.
 
 **Honest limit.** The chain makes tampering *detectable*, not impossible: someone who controls
-localStorage can rewrite every entry and recompute every hash. A real system would anchor the latest
-hash somewhere the attacker can't write (a server, a signature with a private key, or the completion
+localStorage can rewrite every entry and recompute every hash, or simply delete the newest entries.
+Both are fixed the same way: a real system would anchor the latest hash (and entry count) somewhere
+the attacker can't write (a server, a signature with a private key, or the completion
 email sent to both parties).
 
 ## 5. How I used AI

@@ -32,6 +32,13 @@ describe('audit chain', () => {
     expect(await verifyChain(chain)).toMatchObject({ ok: false, brokenAtSeq: 3 });
   });
 
+  it('detects a removed middle entry, but not removed newest entries (known limit, see WRITEUP)', async () => {
+    const chain = await chainOf(5);
+    expect(await verifyChain([...chain.slice(0, 2), ...chain.slice(3)])).toMatchObject({ ok: false });
+    // Without an anchor stored elsewhere, a shorter chain still looks valid.
+    expect(await verifyChain(chain.slice(0, 3))).toEqual({ ok: true, count: 3 });
+  });
+
   it('records every service event in order through the bus, without forking', async () => {
     const storage = memoryStorage();
     const repo = new LocalStorageEnvelopeRepository(storage);
