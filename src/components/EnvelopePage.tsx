@@ -9,6 +9,7 @@ import { getSourceDocument } from '../repository/sourceDocuments';
 import { useCurrentUser } from '../store/currentUser';
 import { AuditPanel } from './AuditPanel';
 import { Builder } from './Builder';
+import { EnvelopeProgressBar } from './EnvelopeProgressBar';
 import { FillView } from './FillView';
 import { StatusBadge } from './StatusBadge';
 
@@ -28,24 +29,26 @@ export function EnvelopePage() {
   const layoutEditable = canEditLayout(env, user);
 
   return (
-    <main>
-      <div className="envelope-bar">
-        <Link to="/">← Documents</Link>
-        <strong>{doc.title}</strong>
-        <StatusBadge status={env.status} />
-        <span className="hint">
-          From {sender?.name}{env.recipient ? ` to ${env.recipient.name} <${env.recipient.email}>` : ''}
-          {env.sentAt && ` · sent ${new Date(env.sentAt).toLocaleString()}`}
-          {env.completedAt && ` · completed ${new Date(env.completedAt).toLocaleString()}`}
-        </span>
+    <main className="envelope">
+      <Link to="/" className="back-link">← Documents</Link>
+      <div className="envelope-head">
+        <div className="envelope-title">
+          <h1>{doc.title}</h1>
+          <StatusBadge status={env.status} />
+          <p className="hint">
+            From {sender?.name}{env.recipient ? ` to ${env.recipient.name} <${env.recipient.email}>` : ''}
+            {env.sentAt && ` · sent ${new Date(env.sentAt).toLocaleString()}`}
+            {env.completedAt && ` · completed ${new Date(env.completedAt).toLocaleString()}`}
+          </p>
+        </div>
         {layoutEditable && (
           <span className="steps">
             <button className={step === 'layout' ? 'step active' : 'step'} onClick={() => setStep('layout')}>1. Place fields</button>
             <button className={step === 'fill' ? 'step active' : 'step'} onClick={() => setStep('fill')}>2. Fill, sign and send</button>
           </span>
         )}
-        {!layoutEditable && isSender(env, user) && env.status !== 'draft' && <span className="hint">Locked: already sent.</span>}
       </div>
+      <div className="journey-wrap"><EnvelopeProgressBar env={env} /></div>
       <NextStep env={env} user={user} step={step} onNext={() => setStep('fill')} />
       {/* key: start fresh local edit state when the user or status changes. */}
       {layoutEditable && step === 'layout'

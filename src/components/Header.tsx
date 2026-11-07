@@ -7,7 +7,7 @@ export function Header() {
   const setUserId = useCurrentUserStore((s) => s.setUserId);
   return (
     <header className="header">
-      <Link to="/" className="brand">MiniSign</Link>
+      <Link to="/" className="brand">Mini<span>Sign</span></Link>
       <label>
         Acting as{' '}
         <select value={user.id} onChange={(e) => setUserId(e.target.value)}>

@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react';
 import { envelopeService } from '../app/services';
+import { buildChecklist, type ChecklistItem } from '../domain/checklist';
 import { canEditField, DomainError, isRecipient, isSender } from '../domain/envelope';
 import type { Envelope, FieldDefinition, FieldValue, SourceDocument, User } from '../domain/types';
-import { validateFields, valueToText, type FieldError } from '../domain/validation';
+import { isValidEmail, valueToText } from '../domain/validation';
 import { FieldValueView } from './FieldValueView';
 import { PageViewer } from './PageViewer';
 import { USERS } from '../domain/seed';
@@ -28,13 +29,22 @@ export function FillView({ env, doc, user, onChanged }: Props) {
   const sender = isSender(env, user) && env.status === 'draft';
   const recipientTurn = isRecipient(env, user) && env.status === 'sent';
   const editable = env.fields.filter((f) => canEditField(env, f, user));
-  const errors: FieldError[] = useMemo(
-    () => (sender || recipientTurn ? validateFields(env.fields, draft, sender ? 'sender' : 'recipient') : []),
-    [env.fields, draft, sender, recipientTurn],
-  );
-  const errorById = new Map(errors.map((e) => [e.fieldId, e.error]));
-  const fieldById = new Map(env.fields.map((f) => [f.id, f]));
-  const remaining = editable.filter((f) => errorById.has(f.id)).length;
+  const active = sender || recipientTurn;
+  const assignee = sender ? 'sender' : 'recipient';
+  const checklist = useMemo(() => buildChecklist(env.fields, draft, assignee), [env.fields, draft, assignee]);
+  const itemById = new Map(checklist.items.map((i) => [i.fieldId, i]));
+
+  // The sender also has to say who it goes to. Same checks as the issue transition.
+  const nameOk = recipient.name.trim() !== '';
+  const emailOk = isValidEmail(recipient.email);
+  const recipientLeft = sender ? Number(!nameOk) + Number(!emailOk) : 0;
+  const remaining = checklist.remaining + recipientLeft;
+  const done = checklist.items.filter((i) => i.done).length + (sender ? Number(nameOk) + Number(emailOk) : 0);
+
+  function goToNext() {
+    if (checklist.next) jumpTo(checklist.next.fieldId);
+    else document.getElementById(nameOk ? 'recipient-email' : 'recipient-name')?.focus();
+  }
 
   // Scroll to a box on the page and put the cursor in it.
   function jumpTo(fieldId: string) {
@@ -79,9 +89,15 @@ export function FillView({ env, doc, user, onChanged }: Props) {
       <PageViewer
         doc={doc}
         fields={env.fields}
-        fieldClassName={(f) =>
-          [canEditField(env, f, user) ? 'editable' : 'readonly', submitted && errorById.has(f.id) ? 'invalid' : ''].join(' ')
-        }
+        fieldClassName={(f) => {
+          const item = active ? itemById.get(f.id) : undefined;
+          return [
+            canEditField(env, f, user) ? 'editable' : 'readonly',
+            item?.done ? 'filled' : '',
+            checklist.next?.fieldId === f.id && active ? 'next' : '',
+            item?.error && (submitted || !item.empty) ? 'invalid' : '',
+          ].join(' ');
+        }}
         renderField={(f) =>
           canEditField(env, f, user) ? (
             <input
@@ -99,60 +115,88 @@ export function FillView({ env, doc, user, onChanged }: Props) {
         }
       />
       <aside className="panel">
-        {sender && (
+        {active && (
           <>
-            <h3>Fill your fields, then send</h3>
-            <p className="hint">Your Print Name and Date fill in automatically when you send.</p>
-            <Progress remaining={remaining} total={editable.length} onJump={() => { const f = editable.find((x) => errorById.has(x.id)); if (f) jumpTo(f.id); }} />
-            <label>Recipient name<input value={recipient.name} onChange={(e) => setRecipient({ ...recipient, name: e.target.value })} /></label>
-            <label>Recipient email<input list="known-users" value={recipient.email} onChange={(e) => {
+            <h3>What you need to fill in</h3>
+            <Progress remaining={remaining} done={done} onJump={goToNext} />
+            {checklist.items.length === 0 && <p className="hint">None of the boxes are yours to fill in.</p>}
+            {doc.pages.map((_, page) => {
+              const items = checklist.items.filter((i) => i.page === page);
+              if (items.length === 0) return null;
+              return (
+                <div key={page} className="check-group">
+                  <h4>Page {page + 1}</h4>
+                  {items.map((item) => (
+                    <CheckRow
+                      key={item.fieldId}
+                      item={item}
+                      isNext={checklist.next?.fieldId === item.fieldId}
+                      showError={submitted || !item.empty}
+                      onClick={() => jumpTo(item.fieldId)}
+                    />
+                  ))}
+                </div>
+              );
+            })}
+            {checklist.autoFilled.length > 0 && (
+              <p className="hint">
+                Filled in for you when you {sender ? 'send' : 'finish'}: {checklist.autoFilled.map((f) => f.label).join(', ')}.
+              </p>
+            )}
+          </>
+        )}
+        {sender && (
+          <div className="check-group">
+            <h4>Who it goes to</h4>
+            <label><span>{nameOk && <span className="tick" aria-hidden="true">✓ </span>}Recipient name</span><input id="recipient-name" value={recipient.name} onChange={(e) => setRecipient({ ...recipient, name: e.target.value })} /></label>
+            <label><span>{emailOk && <span className="tick" aria-hidden="true">✓ </span>}Recipient email</span><input id="recipient-email" list="known-users" value={recipient.email} onChange={(e) => {
               // Picking a known person's email fills in their name too.
               const known = USERS.find((u) => u.email === e.target.value.trim().toLowerCase());
               setRecipient({ email: e.target.value, name: known && !recipient.name ? known.name : recipient.name });
             }} /></label>
+            {recipient.email.trim() !== '' && !emailOk && <p className="check-error">Enter a full email address, like name@company.com.</p>}
             <datalist id="known-users">
               {USERS.filter((u) => u.id !== user.id).map((u) => <option key={u.id} value={u.email}>{u.name}</option>)}
             </datalist>
-            <button className="primary big" onClick={submit}>Sign and send →</button>
-          </>
+          </div>
         )}
-        {recipientTurn && (
-          <>
-            <h3>Fill in and sign</h3>
-            <p className="hint">Your Print Name and Date fill in automatically when you finish.</p>
-            <Progress remaining={remaining} total={editable.length} onJump={() => { const f = editable.find((x) => errorById.has(x.id)); if (f) jumpTo(f.id); }} />
-            <button className="primary big" onClick={submit}>Finish and sign ✓</button>
-          </>
-        )}
-        {!sender && !recipientTurn && <p className="hint">This document is read-only for you.</p>}
+        {sender && <button className="primary big" onClick={submit}>Sign and send →</button>}
+        {recipientTurn && <button className="primary big" onClick={submit}>Finish and sign ✓</button>}
+        {!active && <p className="hint">This document is read-only for you.</p>}
         {message && <p className="error">{message}</p>}
-        {submitted && errors.length > 0 && (
-          <ul className="error-list">
-            {errors.map((e) => (
-              <li key={e.fieldId}>
-                <button className="link" onClick={() => jumpTo(e.fieldId)}>
-                  {e.error} <span className="where">page {(fieldById.get(e.fieldId)?.page ?? 0) + 1} →</span>
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
       </aside>
     </div>
   );
 }
 
-/** "3 of 11 boxes left" with a button that jumps to the next empty one. */
-function Progress({ remaining, total, onJump }: { remaining: number; total: number; onJump: () => void }) {
+/** "3 of 10 done" with a button that jumps to the next thing still needed. */
+function Progress({ remaining, done, onJump }: { remaining: number; done: number; onJump: () => void }) {
+  const total = done + remaining;
   if (total === 0) return null;
-  const done = total - remaining;
   return (
     <div className="progress">
       <div className="progress-bar"><span style={{ width: `${(done / total) * 100}%` }} /></div>
       <div className="progress-text">
-        {remaining === 0 ? 'All your boxes are filled.' : `${done} of ${total} of your boxes done.`}
-        {remaining > 0 && <button className="link" onClick={onJump}>Go to next empty box →</button>}
+        {remaining === 0 ? 'All done. You can submit now.' : `${done} of ${total} done.`}
+        {remaining > 0 && <button className="link" onClick={onJump}>Go to the next one →</button>}
       </div>
     </div>
+  );
+}
+
+/** One line of the checklist. Clicking it jumps to that box on the page. */
+function CheckRow({ item, isNext, showError, onClick }: { item: ChecklistItem; isNext: boolean; showError: boolean; onClick: () => void }) {
+  const bad = !!item.error && showError;
+  return (
+    <button type="button" className={`check-row${item.done ? ' done' : ''}${bad ? ' bad' : ''}${isNext ? ' is-next' : ''}`} onClick={onClick}>
+      <span className="check-mark" aria-hidden="true">{item.done ? '✓' : ''}</span>
+      <span className="check-text">
+        <span className="visually-hidden">{item.done ? 'Done: ' : 'To do: '}</span>
+        {item.label}
+        {!item.required && <span className="check-optional"> (optional)</span>}
+        {bad && <small>{item.error}</small>}
+      </span>
+      {isNext && <span className="check-next">Next</span>}
+    </button>
   );
 }

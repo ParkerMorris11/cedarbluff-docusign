@@ -7,6 +7,9 @@ import { PageViewer } from './PageViewer';
 type Props = { env: Envelope; doc: SourceDocument; user: User; onChanged: (env: Envelope) => void };
 
 const TYPES: FieldType[] = ['text', 'email', 'phone', 'date', 'signature', 'signerName'];
+const TYPE_LABELS: Record<FieldType, string> = {
+  text: 'Text', email: 'Email', phone: 'Phone', date: 'Date', signature: 'Signature', signerName: 'Print name',
+};
 const DEFAULT_SIZE: Record<FieldType, { w: number; h: number }> = {
   text: { w: 0.2, h: 0.018 }, email: { w: 0.25, h: 0.018 }, phone: { w: 0.18, h: 0.018 },
   date: { w: 0.12, h: 0.018 }, signature: { w: 0.3, h: 0.028 }, signerName: { w: 0.2, h: 0.018 },
@@ -98,21 +101,22 @@ export function Builder({ env, doc, user, onChanged }: Props) {
       />
       <aside className="panel">
         <h3>Place fields</h3>
+        <button className="secondary" onClick={() => commit(masterAgreementLayout())}>
+          Load Master Agreement layout
+        </button>
+        <div className="panel-or">or add your own</div>
         <p className="hint">Pick a type and who fills it, then click the page. Drag a field to move it.</p>
         <label>Type
           <select value={placeType} onChange={(e) => setPlaceType(e.target.value as FieldType)}>
-            {TYPES.map((t) => <option key={t}>{t}</option>)}
+            {TYPES.map((t) => <option key={t} value={t}>{TYPE_LABELS[t]}</option>)}
           </select>
         </label>
         <label>Filled by
           <select value={placeAssignee} onChange={(e) => setPlaceAssignee(e.target.value as FieldAssignee)}>
-            <option value="recipient">recipient</option>
-            <option value="sender">sender (you)</option>
+            <option value="recipient">Recipient</option>
+            <option value="sender">Sender (you)</option>
           </select>
         </label>
-        <button className="secondary" onClick={() => commit(masterAgreementLayout())}>
-          Load Master Agreement layout
-        </button>
         <p className="hint">{fields.length} fields placed.</p>
 
         {selected && (
@@ -126,13 +130,13 @@ export function Builder({ env, doc, user, onChanged }: Props) {
                 const type = e.target.value as FieldType;
                 patchSelected({ type, autoFillDate: type === 'date' ? selected.autoFillDate ?? true : undefined });
               }}>
-                {TYPES.map((t) => <option key={t}>{t}</option>)}
+                {TYPES.map((t) => <option key={t} value={t}>{TYPE_LABELS[t]}</option>)}
               </select>
             </label>
             <label>Filled by
               <select value={selected.assignee} onChange={(e) => patchSelected({ assignee: e.target.value as FieldAssignee })}>
-                <option value="recipient">recipient</option>
-                <option value="sender">sender</option>
+                <option value="recipient">Recipient</option>
+                <option value="sender">Sender</option>
               </select>
             </label>
             <label className="check">
