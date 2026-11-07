@@ -75,47 +75,28 @@ data.
 
 ## 3. Key decisions and trade-offs
 
-**1. Field positions are page index plus fractions of the page (0–1), not pixels.**
-Each page renders in a box with the page's `aspect-ratio`, and fields use percentage
-`left/top/width/height`. The same numbers work at any size, with no resize code. I checked this in a
-browser: a field sat at 0.140 / 0.505 of the page at both 1072px and 388px page widths.
-*Trade-off:* PDF points (612×792) would map 1:1 to a real PDF for stamping a signed copy, but they
-tie the model to one unit and still need converting for display. Fractions plus the page's known size
-can be converted to points later when needed.
+Decision 1 — Field positions are stored as fractions of the page, plus a page index.
 
-**2. Values are stored separately from the layout.**
-`FieldDefinition` has no `value`. "Lock the layout" and "edit values" are different permissions with
-different timing, so they're different data. It also means the same layout could be reused as a
-template later.
-*Trade-off:* rendering a field means a lookup by id, and deleting a field must also drop its value
-(`applyLayout` does this), and so must changing who fills a field or its type, or the recipient
-could receive a box pre-filled by the sender.
+I had three choices: pixels, PDF points, or fractions. Pixels are the easiest to write — a click gives you coordinates immediately — but they're only correct at one window size. The moment the page resizes, fields drift off their lines, and fixing that means writing resize code that runs forever and can have bugs. PDF points (the PDF's native units) map directly onto the real document, which is nice for exporting a signed copy — but points must be converted on every render and on every click, so you pay the conversion cost constantly instead of once. Fractions pay it at most twice per field, ever: one divide when a click is stored, one multiply if we ever export. Fields render as percentage CSS over a fixed aspect-ratio box, so they hold position at any size with no resize code at all. I verified this in a browser: a field sat at 0.140 / 0.505 of the page at both 1072px and 388px page widths. The trade-off: "0.45" means nothing to a PDF library, so exporting a flattened PDF later requires the page's point dimensions — which is why the document model stores each page's width and height. The conversion data is already sitting in the model.
 
-**3. Rules live in pure domain functions, and the service re-checks them on every call.**
-`canView`, `canEditLayout`, `canEditField`, `transition`, and `validateFields` are used by the UI to
-decide what to show *and* by `EnvelopeService` before every write. Hiding a button is never the
-protection. Single reads are checked too: `getForUser` returns the same "not found" for missing and
-forbidden envelopes, so the service never reveals whether an id exists (with a real backend, that stops
-probing; today anyone with DevTools can read localStorage).
-*Trade-off:* the UI computes permissions it could have been told by a server. Without a backend, the
-service is the trust boundary, so a determined user with DevTools can still edit localStorage. A real
-backend would run the same domain functions server-side.
+Decision 2 — Values are stored separately from the field layout.
 
-**4. localStorage behind an async repository interface.**
-`EnvelopeRepository` has `list/get/put`, all returning Promises even though localStorage is
-synchronous, so the calling code already has the shape of an HTTP API. Swapping in a backend changes
-one class in the composition root.
-*Trade-off:* it's per-browser, so the two users are simulated in one browser with the user switcher.
+The natural version of this data model puts the answer inside each field. That's simpler and it's what AI tools generate by default. It's also wrong for this app: the requirements freeze things at three different moments — the layout locks when the document is sent, the sender's answers lock then too, and the recipient's answers lock at completion. Three freeze events can't exist on one glued-together object; they need layout and values to be independent. The trade-off is a cleanup responsibility the app now owns: when a field is deleted, retyped, or reassigned, its old value must be dropped too — otherwise a recipient could receive a box the sender pre-filled. A side benefit: because the layout contains no data, "save this layout as a template" is a one-line copy instead of a redaction job.
 
-**5. Page images instead of pdf.js.**
-The two pages are pre-rendered PNGs (150 DPI). This avoided pdf.js worker setup inside the time box.
-`SourceDocument.pages[].imageUrl` is the only thing the viewer needs, so swapping in pdf.js later
-changes how pages are drawn and nothing above the viewer.
+Decision 3 — Rules live in pure domain functions, and the service re-checks them on every write.
 
-Smaller choices: one `/envelope/:id` route instead of separate edit and sign routes, because what you
-see is derived from the permission functions. Auto-filled fields (Print Name, auto-date) are filled
-by `transition()` at the moment each side signs: the sender's on issue, the recipient's on complete.
-Validation skips them because they can't be missing.
+The framework-idiomatic approach is to derive permissions in the UI — disable inputs, hide buttons. In a single-user app that's correct, because the UI is the only thing that can change state. This app has two parties and rules between them, so permissions are a security property, and UI-level enforcement is only true if every code path goes through the UI. One future keyboard shortcut or test helper that bypasses the components, and the rule silently stops covering everything. So canView, canEditLayout, canEditField, transition, and validateFields are plain functions used in two places: the UI reads them to decide what to show, and EnvelopeService runs them again before every mutation. Hiding a button is a suggestion; the service check is a wall. Reads are checked too — getForUser returns "not found" for both missing and forbidden envelopes, so the service never reveals whether an ID exists. The trade-off, stated honestly: with localStorage, the service is a trust boundary against bugs, not against a user with DevTools, who can still edit the store directly. The reason this is acceptable is structural — the domain functions are pure and framework-free, so a real backend would run the identical code server-side. The seam isn't hypothetical; it's the same files.
+
+Decision 4 — localStorage behind an async repository interface.
+
+EnvelopeRepository has list, get, and put, all returning Promises even though localStorage is synchronous. That looks like unnecessary abstraction — one interface, one implementation, fake async. The honest case for it: a signing app with no server is a prototype, and the first thing production does is add one. Every consumer is already written against Promise<Envelope[]>, so a REST implementation changes one file at the composition root instead of every call site — the timing (sync vs. async, loading states, error paths) is what would force the rewrite, not the logic. The trade-off: it's per-browser, so the two parties are simulated in one browser with a user switcher, and two tabs hold independent caches over the same storage. Fine for this demo; both belong in "unfinished."
+
+Decision 5 — Pre-rendered page images instead of pdf.js.
+
+Rendering the real PDF in-browser (react-pdf) supports any PDF and selectable text, but it runs in a web worker, needs bundler configuration, and fails at runtime — potentially on the reviewer's machine, not mine. Inside a 90-minute box, an unscheduled setup rabbit hole is 17% of the budget. Two pre-rendered PNGs at 150 DPI are guaranteed to work everywhere. The trade-off: the app can't ingest a new document — the source document is effectively hardcoded. That's not a limitation of the code so much as a feature that doesn't exist yet, and the README doesn't ask for it. The seam that makes this cheap to reverse: the viewer's only contract is pages[].imageUrl, so swapping in a real PDF renderer later changes one component and nothing above it.
+
+
+
 
 **Guidance added after the core worked.** The spec said not to add unlisted features. After the
 core flow passed, I chose to add a few things that make the two-person flow easier to follow: a
