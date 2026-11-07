@@ -35,6 +35,23 @@ export async function makeEntry(
   return { ...base, hash: await hashEntry(base) };
 }
 
+/**
+ * Fingerprint of what the document says right now: status, who it goes to, the layout and every value.
+ * Keys are sorted so the same document always gives the same fingerprint.
+ */
+export async function documentFingerprint(env: {
+  status: string; recipient: unknown; fields: unknown[]; values: Record<string, unknown>;
+}): Promise<string> {
+  const values = Object.keys(env.values).sort().map((k) => [k, env.values[k]]);
+  return sha256Hex(JSON.stringify([env.status, env.recipient, env.fields, values]));
+}
+
+/** The document fingerprint an entry recorded, if it has one (entries written before this feature don't). */
+export function recordedFingerprint(e: AuditEntry): string | undefined {
+  const d = e.data as { docHash?: unknown } | null;
+  return d && typeof d.docHash === 'string' ? d.docHash : undefined;
+}
+
 export type VerifyResult = { ok: true; count: number } | { ok: false; brokenAtSeq: number; reason: string };
 
 /**

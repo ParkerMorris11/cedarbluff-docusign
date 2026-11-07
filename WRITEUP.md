@@ -26,7 +26,8 @@ Walkthrough:
    (A fourth user, **Parker Morris** at a made-up "Morris Fleet Co.", `parker@morrisfleet.example`,
    can be used as a recipient instead of Sam.)
 6. In the audit panel, click **Verify integrity**. To see tampering detected, edit any entry in
-   `localStorage["minisign.audit.v1"]` in DevTools and verify again.
+   `localStorage["minisign.audit.v1"]`, or any signed value in `localStorage["minisign.envelopes.v1"]`,
+   in DevTools, reload, and verify again.
 
 Data lives in `localStorage`; clear site data to reset.
 
@@ -146,6 +147,11 @@ matches the entry before it. Editing or reordering any entry, or removing one fr
 breaks the chain at that point. Removing entries from the *end* is not caught: what's left is still a
 valid, shorter chain (see the honest limit below).
 
+Each entry also seals a **fingerprint of the document** as it was saved (status, recipient, layout and
+every value). Verify compares the newest entry's fingerprint with the document as it is now, so a
+signed value or status edited directly in storage is caught too. The fingerprint is taken by the audit
+module after the save, from the repository; the core still doesn't know the audit trail exists.
+
 **Why this feature.** In a signing product, the history is the evidence. `status` only says where a
 document is now, and the audit trail says how it got there. It's small, and it exercises the
 architecture: it should be addable without touching the core.
@@ -166,8 +172,8 @@ Details that matter:
   group expands to show its entry numbers and hashes.
 
 **Honest limit.** The chain makes tampering *detectable*, not impossible: someone who controls
-localStorage can rewrite every entry and recompute every hash, or simply delete the newest entries.
-Both are fixed the same way: a real system would anchor the latest hash (and entry count) somewhere
+localStorage can rewrite every entry and recompute every hash, or delete the newest entries *and*
+roll the document back to match an older one. Both are fixed the same way: a real system would anchor the latest hash (and entry count) somewhere
 the attacker can't write (a server, a signature with a private key, or the completion
 email sent to both parties).
 
@@ -214,7 +220,7 @@ email sent to both parties).
 - **Security is simulated.** The rules run in the browser, so anyone with DevTools can edit
   localStorage. That's acceptable for a demo without a backend, and the domain functions are ready to
   run server-side.
-- **Tests cover the domain, service access, checklist, progress and audit chain** (31 tests). There are no component or
+- **Tests cover the domain, service access, checklist, progress and audit chain** (32 tests). There are no component or
   end-to-end tests in the repo; the full flow was checked with a scripted browser run that isn't
   committed.
 - **One source document.** The "pick a document" step exists but only the Master Agreement is

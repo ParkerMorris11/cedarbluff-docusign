@@ -53,4 +53,19 @@ describe('audit chain', () => {
     expect(entries.map((e) => e.seq)).toEqual([0, 1, 2, 3]);
     expect(await audit.verify(env.id, alex)).toEqual({ ok: true, count: 4 });
   });
+
+  it('catches a document edited in storage after it was signed', async () => {
+    const storage = memoryStorage();
+    const repo = new LocalStorageEnvelopeRepository(storage);
+    const bus = new EventBus();
+    const audit = new AuditLog(storage, repo, bus);
+    const service = new EnvelopeService(repo, bus);
+    const [alex] = USERS;
+    const env = await service.createEnvelope('master-agreement', alex);
+    await service.updateLayout(env.id, [], alex);
+    expect(await audit.verify(env.id, alex)).toEqual({ ok: true, count: 2 });
+    // Someone edits the saved document directly, bypassing the service.
+    await repo.put({ ...(await repo.get(env.id))!, values: { forged: 'changed' } });
+    expect(await audit.verify(env.id, alex)).toMatchObject({ ok: false, brokenAtSeq: 1, reason: /no longer matches/ });
+  });
 });
