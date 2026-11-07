@@ -104,6 +104,7 @@ export function FillView({ env, doc, user, onChanged }: Props) {
             <h3>Fill your fields, then send</h3>
             <p className="hint">Your Print Name and Date fill in automatically when you send.</p>
             <Progress remaining={remaining} total={editable.length} onJump={() => { const f = editable.find((x) => errorById.has(x.id)); if (f) jumpTo(f.id); }} />
+            <Checklist fields={editable} errorById={errorById} onJump={jumpTo} />
             <label>Recipient name<input value={recipient.name} onChange={(e) => setRecipient({ ...recipient, name: e.target.value })} /></label>
             <label>Recipient email<input list="known-users" value={recipient.email} onChange={(e) => {
               // Picking a known person's email fills in their name too.
@@ -121,6 +122,7 @@ export function FillView({ env, doc, user, onChanged }: Props) {
             <h3>Fill in and sign</h3>
             <p className="hint">Your Print Name and Date fill in automatically when you finish.</p>
             <Progress remaining={remaining} total={editable.length} onJump={() => { const f = editable.find((x) => errorById.has(x.id)); if (f) jumpTo(f.id); }} />
+            <Checklist fields={editable} errorById={errorById} onJump={jumpTo} />
             <button className="primary big" onClick={submit}>Finish and sign ✓</button>
           </>
         )}
@@ -154,5 +156,27 @@ function Progress({ remaining, total, onJump }: { remaining: number; total: numb
         {remaining > 0 && <button className="link" onClick={onJump}>Go to next empty box →</button>}
       </div>
     </div>
+  );
+}
+
+/** Every box this person must fill, in page order, with a tick when it's valid. Click to jump to it. */
+function Checklist({ fields, errorById, onJump }: { fields: FieldDefinition[]; errorById: Map<string, string>; onJump: (id: string) => void }) {
+  if (fields.length === 0) return null;
+  const sorted = [...fields].sort((a, b) => a.page - b.page || a.y - b.y || a.x - b.x);
+  return (
+    <ul className="checklist" aria-label="Your boxes">
+      {sorted.map((f) => {
+        const ok = !errorById.has(f.id);
+        return (
+          <li key={f.id} className={ok ? 'ok' : ''}>
+            <button className="link" onClick={() => onJump(f.id)}>
+              <span className="tick" aria-hidden="true">{ok ? '✓' : '○'}</span>
+              {f.label}{f.required ? '' : ' (optional)'}
+              <span className="pg">p.{f.page + 1}</span>
+            </button>
+          </li>
+        );
+      })}
+    </ul>
   );
 }
