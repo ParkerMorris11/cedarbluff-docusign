@@ -7,8 +7,10 @@ then locked. Part 2 feature: a tamper-evident audit trail fed by an event bus.
 ## 1. How to run
 
 Tested with Node 22.
+Download the Zip and run
 
 ```bash
+cd cedarbluff-docusign
 npm install
 npm run dev     # http://localhost:5173
 npm test        # Vitest: domain, service and audit tests
