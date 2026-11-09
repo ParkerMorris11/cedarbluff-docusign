@@ -3,7 +3,7 @@
 A mini document-signing app (CedarBluff take-home). A sender places boxes on the Master Agreement,
 fills and signs their part, and sends it. The recipient fills and signs theirs. Then the document locks.
 
-The full reasoning and trade-offs are in **[WRITEUP.md](WRITEUP.md)**. This page is the short version.
+The write-up is **[WRITEUP.md](WRITEUP.md)**. A longer version with diagrams is in [docs/WRITEUP-full.md](docs/WRITEUP-full.md).
 
 ```bash
 npm install
@@ -86,6 +86,7 @@ The same rule functions decide what the screen shows **and** are checked again o
 | Path | What's there |
 |---|---|
 | `WRITEUP.md` | The write-up: decisions, trade-offs, AI use, what's unfinished |
+| `docs/WRITEUP-full.md` | The longer write-up, with a diagram for each decision |
 | `CLAUDE.md` | The pre-build plan (spec), kept as written |
 | `src/domain/` | Pure rules: types, status changes, permissions, validation |
 | `src/service/` | Checks every rule on every call, then announces what happened |
