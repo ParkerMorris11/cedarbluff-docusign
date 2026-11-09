@@ -98,6 +98,34 @@ Rendering the real PDF in-browser (react-pdf) supports any PDF and selectable te
 
 
 
+### Decision diagrams
+
+Each picture shows our way next to the more obvious way, with labels taken from `src/`.
+
+**Decision 1: field positions are fractions of the page**
+
+![Fractions, not pixels](docs/decisions/1-positions.svg)
+
+**Decision 2: values are stored separately from the layout**
+
+![Three separate pieces](docs/decisions/2-layout-vs-values.svg)
+
+**Decision 3: rules live in the domain, and the service re-checks them**
+
+![The door and the lock](docs/decisions/3-permissions.svg)
+
+**Decision 4: localStorage behind an async repository**
+
+![One helper for saving](docs/decisions/4-repository.svg)
+
+**State and data flow (Section 2): one source of truth**
+
+![One source of truth](docs/decisions/5-one-source-of-truth.svg)
+
+**Feature (Section 4): tamper-evident audit trail**
+
+![Tamper-evident audit trail](docs/decisions/6-audit-trail.svg)
+
 **Guidance added after the core worked.** The spec said not to add unlisted features. After the
 core flow passed, I chose to add a few things that make the two-person flow easier to follow: a
 "what you need to fill in" checklist, a four-stage progress bar, box colours from each viewer's point

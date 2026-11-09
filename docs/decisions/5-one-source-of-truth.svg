@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+<title id="title">One source of truth</title>
+<desc id="desc">Zustand holds only the current user (four seeded users). Screens load envelopes through EnvelopeService from the repository, the only place envelopes live. Crossed out: envelopes cached in Zustand too, two copies that drift.</desc>
+<defs>
+  <marker id="a-navy" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#1E2A4A"/></marker>
+  <marker id="a-red" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#D64545"/></marker>
+  <marker id="a-green" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#2E9E5B"/></marker>
+  <marker id="a-blue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#2F6FED"/></marker>
+  <marker id="a-teal" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#0F8F8C"/></marker>
+  <marker id="a-fade" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#AEB6C3"/></marker>
+</defs>
+<rect width="1600" height="900" fill="#FFFFFF"/>
+<text x="80" y="98" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="54" font-weight="800" fill="#1E2A4A" text-anchor="start" >One source of truth</text>
+<text x="80" y="146" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="26" font-weight="400" fill="#5B6475" text-anchor="start" >Zustand only remembers who you are. Envelopes are read fresh from the repository.</text>
+<rect x="80" y="206" width="400" height="330" rx="24" fill="#FFFFFF" stroke="#0F8F8C" stroke-width="4" />
+<text x="110" y="258" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="32" font-weight="800" fill="#0F8F8C" text-anchor="start" >Zustand</text>
+<text x="110" y="296" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="24" font-weight="700" fill="#1E2A4A" text-anchor="start" >current user only</text>
+<text x="110" y="328" font-family="'SF Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="19" font-weight="600" fill="#5B6475" text-anchor="start" >useCurrentUserStore → userId</text>
+<rect x="110" y="362" width="175" height="48" rx="24" fill="#E3F4F3" stroke="#0F8F8C" stroke-width="2"/>
+<text x="197.5" y="394" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="20" font-weight="700" fill="#0F8F8C" text-anchor="middle" >Alex Rivera</text>
+<rect x="295" y="362" width="175" height="48" rx="24" fill="#E3F4F3" stroke="#0F8F8C" stroke-width="2"/>
+<text x="382.5" y="394" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="20" font-weight="700" fill="#0F8F8C" text-anchor="middle" >Sam Chen</text>
+<rect x="110" y="426" width="175" height="48" rx="24" fill="#E3F4F3" stroke="#0F8F8C" stroke-width="2"/>
+<text x="197.5" y="458" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="20" font-weight="700" fill="#0F8F8C" text-anchor="middle" >Dana Brooks</text>
+<rect x="295" y="426" width="175" height="48" rx="24" fill="#E3F4F3" stroke="#0F8F8C" stroke-width="2"/>
+<text x="382.5" y="458" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="20" font-weight="700" fill="#0F8F8C" text-anchor="middle" >Parker Morris</text>
+<text x="110" y="518" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="18" font-weight="500" fill="#5B6475" text-anchor="start" >seeded users (src/domain/seed.ts)</text>
+<rect x="590" y="206" width="280" height="330" rx="24" fill="#FFFFFF" stroke="#2F6FED" stroke-width="4" />
+<text x="730.0" y="258" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="32" font-weight="800" fill="#2F6FED" text-anchor="middle" >Screens</text>
+<text x="730.0" y="310" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="23" font-weight="600" fill="#1E2A4A" text-anchor="middle" >load on open</text>
+<text x="730.0" y="342" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="23" font-weight="600" fill="#1E2A4A" text-anchor="middle" >through the service</text>
+<text x="730.0" y="402" font-family="'SF Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="19" font-weight="600" fill="#5B6475" text-anchor="middle" >useLoad(() =&gt;</text>
+<text x="730.0" y="430" font-family="'SF Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="19" font-weight="600" fill="#5B6475" text-anchor="middle" >getForUser())</text>
+<text x="730.0" y="492" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="22" font-weight="700" fill="#2E9E5B" text-anchor="middle" >no copy kept</text>
+<rect x="960" y="281" width="230" height="180" rx="24" fill="#EDF0F6" stroke="#1E2A4A" stroke-width="4" />
+<text x="1075.0" y="362" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="28" font-weight="800" fill="#1E2A4A" text-anchor="middle" >Envelope</text>
+<text x="1075.0" y="398" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="28" font-weight="800" fill="#1E2A4A" text-anchor="middle" >Service</text>
+<rect x="1280" y="206" width="260" height="330" rx="24" fill="#E7F5EC" stroke="#2E9E5B" stroke-width="5" />
+<text x="1410.0" y="258" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="30" font-weight="800" fill="#2E9E5B" text-anchor="middle" >Repository</text>
+<text x="1410.0" y="324" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="24" font-weight="700" fill="#1E2A4A" text-anchor="middle" >the only place</text>
+<text x="1410.0" y="358" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="24" font-weight="700" fill="#1E2A4A" text-anchor="middle" >envelopes live</text>
+<circle cx="1410.0" cy="436" r="30" fill="#2E9E5B"/><path d="M1396.5 436.6 L1407.0 447.4 L1425.0 425.5" fill="none" stroke="#fff" stroke-width="6.6" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="486" y1="371" x2="578" y2="371" stroke="#0F8F8C" stroke-width="5" marker-end="url(#a-teal)"/>
+<text x="535.0" y="356" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="18" font-weight="700" fill="#0F8F8C" text-anchor="middle" >who am I?</text>
+<line x1="876" y1="371" x2="948" y2="371" stroke="#1E2A4A" stroke-width="5" marker-end="url(#a-navy)"/>
+<line x1="1196" y1="371" x2="1268" y2="371" stroke="#1E2A4A" stroke-width="5" marker-end="url(#a-navy)"/>
+<g opacity="0.55">
+<rect x="330" y="620" width="340" height="120" rx="20" fill="#F6F8FB" stroke="#AEB6C3" stroke-width="3" />
+<text x="500" y="672" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="26" font-weight="800" fill="#5B6475" text-anchor="middle" >Zustand</text>
+<text x="500" y="708" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="22" font-weight="600" fill="#5B6475" text-anchor="middle" >envelopes[ ] copy</text>
+<rect x="930" y="620" width="340" height="120" rx="20" fill="#F6F8FB" stroke="#AEB6C3" stroke-width="3" />
+<text x="1100" y="672" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="26" font-weight="800" fill="#5B6475" text-anchor="middle" >Repository</text>
+<text x="1100" y="708" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="22" font-weight="600" fill="#5B6475" text-anchor="middle" >envelopes</text>
+<text x="800" y="698" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="56" font-weight="800" fill="#5B6475" text-anchor="middle" >≠</text>
+</g>
+<line x1="310" y1="750" x2="1290" y2="610" stroke="#D64545" stroke-width="6" stroke-linecap="round"/>
+<circle cx="300" cy="612" r="24" fill="#D64545"/><path d="M290.88 602.88 L309.12 621.12 M309.12 602.88 L290.88 621.12" stroke="#fff" stroke-width="5.28" stroke-linecap="round"/>
+<text x="800" y="810" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="28" font-weight="700" fill="#D64545" text-anchor="middle" >envelopes cached in Zustand too = two copies that drift</text>
+</svg>
