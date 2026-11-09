@@ -273,25 +273,27 @@ Detecting those attacks requires a trusted external record of the latest hash an
 
 ### Planning
 
-I used Perplexity Computer to take in the README from the email and create a `SPEC.md`, including notes on logic I chose myself, such as the audit trail.
+I used Perplexity Computer to turn the README from the email into a build spec, `SPEC.md`. It includes choices I made myself, such as the audit trail as the Part 2 feature. That spec is kept in the repo, as written, as `CLAUDE.md`.
 
-I used my EGM skill—Elephant Goldfish Model—to review `SPEC.md` for gaps before handing it to Claude to build.
+I used my EGM skill—Elephant Goldfish Model—to review the spec for gaps before handing it to Claude to build.
 
 <img width="1999" height="1268" alt="Perplexity Computer planning screenshot" src="https://github.com/user-attachments/assets/79d85887-40dc-42d6-a2ac-b6dfd61adf32" />
 
 ### Build
 
-I used Claude Code to write the code from that `SPEC.md`.
+I used Claude Code to write the code from that spec.
 
 ### Where I changed what the AI gave me
 
-Claude Code reviewed the Perplexity spec before building and found five problems. I accepted all five, listed at the bottom of `CLAUDE.md`:
+**The spec.** Before building, I had Claude Code review the Perplexity spec against the README. It flagged five differences. I went through each one myself, decided it was right, and changed the plan. They are listed at the bottom of `CLAUDE.md`:
 
 1. The spec cached envelopes in Zustand as well as `localStorage`, creating another document cache to synchronize. Zustand now holds only the current user.
 2. The spec only auto-filled the recipient's name and date on complete, so the sender's Print Name and Date would never be filled. They are now auto-filled on issue.
 3. The spec filtered only the list by user, so typing an envelope URL would open anyone's document. Single-document reads are now checked too.
 4. Async hashing could fork the audit chain, so appends are now queued.
 5. React Router was missing from the stack.
+
+**The signing date.** The first build filled auto-date fields with the UTC date (`toISOString().slice(0, 10)`). In Utah in November, UTC is already the next day after 5 PM, so a document signed on a Friday evening was dated Saturday. The first test used a noon timestamp, so it never caught this. I changed it to use the signer's local calendar date (`localDate` in `domain/envelope.ts`) and added a test for a late-evening signature.
 
 ### Review
 
