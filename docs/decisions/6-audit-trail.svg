@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+<title id="title">Tamper-evident audit trail</title>
+<desc id="desc">EnvelopeService emits on the EventBus, AuditLog subscribes and appends entries. A chain of four entries with hash and prevHash; entry #2 is edited so the link to #3 breaks and Verify reports tampering. Footer: tamper-evident, not tamper-proof.</desc>
+<defs>
+  <marker id="a-navy" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#1E2A4A"/></marker>
+  <marker id="a-red" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#D64545"/></marker>
+  <marker id="a-green" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#2E9E5B"/></marker>
+  <marker id="a-blue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#2F6FED"/></marker>
+  <marker id="a-teal" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#0F8F8C"/></marker>
+  <marker id="a-fade" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#AEB6C3"/></marker>
+</defs>
+<rect width="1600" height="900" fill="#FFFFFF"/>
+<text x="80" y="98" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="54" font-weight="800" fill="#1E2A4A" text-anchor="start" >Tamper-evident audit trail</text>
+<text x="80" y="146" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="26" font-weight="400" fill="#5B6475" text-anchor="start" >hash = sha256(prevHash + entry). Change one entry and its hash no longer matches.</text>
+<rect x="80" y="190" width="330" height="120" rx="24" fill="#EDF0F6" stroke="#1E2A4A" stroke-width="4" />
+<text x="245.0" y="244" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="30" font-weight="800" fill="#1E2A4A" text-anchor="middle" >EnvelopeService</text>
+<text x="245.0" y="282" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="21" font-weight="600" fill="#5B6475" text-anchor="middle" >after each save</text>
+<rect x="560" y="190" width="280" height="120" rx="24" fill="#EAF1FE" stroke="#2F6FED" stroke-width="4" />
+<text x="700.0" y="244" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="30" font-weight="800" fill="#2F6FED" text-anchor="middle" >EventBus</text>
+<text x="700.0" y="282" font-family="'SF Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="21" font-weight="600" fill="#5B6475" text-anchor="middle" >emit / subscribe</text>
+<rect x="990" y="190" width="330" height="120" rx="24" fill="#E3F4F3" stroke="#0F8F8C" stroke-width="4" />
+<text x="1155.0" y="244" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="30" font-weight="800" fill="#0F8F8C" text-anchor="middle" >AuditLog</text>
+<text x="1155.0" y="282" font-family="'SF Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="21" font-weight="600" fill="#5B6475" text-anchor="middle" >features/audit</text>
+<line x1="416" y1="250.0" x2="548" y2="250.0" stroke="#1E2A4A" stroke-width="5" marker-end="url(#a-navy)"/>
+<text x="482" y="234.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="20" font-weight="700" fill="#1E2A4A" text-anchor="middle" >emit</text>
+<line x1="846" y1="250.0" x2="978" y2="250.0" stroke="#2F6FED" stroke-width="5" marker-end="url(#a-blue)"/>
+<text x="912" y="234.0" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="20" font-weight="700" fill="#2F6FED" text-anchor="middle" >listens</text>
+<text x="1340" y="240" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="21" font-weight="600" fill="#5B6475" text-anchor="start" >The service never</text>
+<text x="1340" y="270" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="21" font-weight="600" fill="#5B6475" text-anchor="start" >imports AuditLog</text>
+<path d="M1155 316 L1155 344 L800 344 L800 368" fill="none" stroke="#0F8F8C" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#a-teal)"/>
+<text x="1175" y="348" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="20" font-weight="700" fill="#0F8F8C" text-anchor="start" >appends</text>
+<rect x="80" y="390" width="330" height="230" rx="24" fill="#FFFFFF" stroke="#0F8F8C" stroke-width="4" />
+<text x="104" y="436" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="28" font-weight="800" fill="#0F8F8C" text-anchor="start" >#0</text>
+<text x="154" y="436" font-family="'SF Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="22" font-weight="700" fill="#1E2A4A" text-anchor="start" >envelope.created</text>
+<text x="104" y="498" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="21" font-weight="600" fill="#5B6475" text-anchor="start" >prevHash</text>
+<text x="386" y="498" font-family="'SF Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="22" font-weight="700" fill="#1E2A4A" text-anchor="end" >0000…</text>
+<text x="104" y="540" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="21" font-weight="600" fill="#5B6475" text-anchor="start" >hash</text>
+<text x="386" y="540" font-family="'SF Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="22" font-weight="700" fill="#1E2A4A" text-anchor="end" >7a3f…</text>
+<circle cx="380" cy="586" r="18" fill="#2E9E5B"/><path d="M371.9 586.36 L378.2 592.84 L389.0 579.7" fill="none" stroke="#fff" stroke-width="3.96" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="412" y1="498" x2="448" y2="498" stroke="#0F8F8C" stroke-width="5"/>
+<rect x="450" y="390" width="330" height="230" rx="24" fill="#FFFFFF" stroke="#0F8F8C" stroke-width="4" />
+<text x="474" y="436" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="28" font-weight="800" fill="#0F8F8C" text-anchor="start" >#1</text>
+<text x="524" y="436" font-family="'SF Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="22" font-weight="700" fill="#1E2A4A" text-anchor="start" >values.updated</text>
+<text x="474" y="498" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="21" font-weight="600" fill="#5B6475" text-anchor="start" >prevHash</text>
+<text x="756" y="498" font-family="'SF Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="22" font-weight="700" fill="#1E2A4A" text-anchor="end" >7a3f…</text>
+<text x="474" y="540" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="21" font-weight="600" fill="#5B6475" text-anchor="start" >hash</text>
+<text x="756" y="540" font-family="'SF Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="22" font-weight="700" fill="#1E2A4A" text-anchor="end" >c91e…</text>
+<circle cx="750" cy="586" r="18" fill="#2E9E5B"/><path d="M741.9 586.36 L748.2 592.84 L759.0 579.7" fill="none" stroke="#fff" stroke-width="3.96" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="782" y1="498" x2="818" y2="498" stroke="#0F8F8C" stroke-width="5"/>
+<rect x="820" y="390" width="330" height="230" rx="24" fill="#FCECEC" stroke="#D64545" stroke-width="5" />
+<text x="844" y="436" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="28" font-weight="800" fill="#D64545" text-anchor="start" >#2</text>
+<text x="894" y="436" font-family="'SF Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="22" font-weight="700" fill="#1E2A4A" text-anchor="start" >envelope.issued</text>
+<text x="844" y="498" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="21" font-weight="600" fill="#5B6475" text-anchor="start" >prevHash</text>
+<text x="1126" y="498" font-family="'SF Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="22" font-weight="700" fill="#1E2A4A" text-anchor="end" >c91e…</text>
+<text x="844" y="540" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="21" font-weight="600" fill="#5B6475" text-anchor="start" >hash</text>
+<text x="1126" y="540" font-family="'SF Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="22" font-weight="700" fill="#1E2A4A" text-anchor="end" >4b8d…</text>
+<line x1="1052" y1="533" x2="1130" y2="533" stroke="#D64545" stroke-width="3"/>
+<text x="844" y="582" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="21" font-weight="700" fill="#D64545" text-anchor="start" >re-hash</text>
+<text x="1126" y="582" font-family="'SF Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="22" font-weight="800" fill="#D64545" text-anchor="end" >91d0…</text>
+<rect x="1022" y="370" width="108" height="40" rx="20.0" fill="#D64545"/><text x="1076.0" y="397.2" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="20" font-weight="700" fill="#FFFFFF" text-anchor="middle" >edited</text>
+<line x1="1152" y1="498" x2="1163" y2="498" stroke="#D64545" stroke-width="5"/>
+<line x1="1177" y1="498" x2="1188" y2="498" stroke="#D64545" stroke-width="5"/>
+<path d="M1163 486 l6 12 l-6 12 M1177 486 l-6 12 l6 12" fill="none" stroke="#D64545" stroke-width="4"/>
+<rect x="1190" y="390" width="330" height="230" rx="24" fill="#FFFFFF" stroke="#0F8F8C" stroke-width="4" />
+<text x="1214" y="436" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="28" font-weight="800" fill="#0F8F8C" text-anchor="start" >#3</text>
+<text x="1264" y="436" font-family="'SF Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="22" font-weight="700" fill="#1E2A4A" text-anchor="start" >envelope.completed</text>
+<text x="1214" y="498" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="21" font-weight="600" fill="#5B6475" text-anchor="start" >prevHash</text>
+<text x="1496" y="498" font-family="'SF Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="22" font-weight="700" fill="#1E2A4A" text-anchor="end" >4b8d…</text>
+<text x="1214" y="540" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="21" font-weight="600" fill="#5B6475" text-anchor="start" >hash</text>
+<text x="1496" y="540" font-family="'SF Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="22" font-weight="700" fill="#1E2A4A" text-anchor="end" >e02a…</text>
+<circle cx="1490" cy="586" r="18" fill="#2E9E5B"/><path d="M1481.9 586.36 L1488.2 592.84 L1499.0 579.7" fill="none" stroke="#fff" stroke-width="3.96" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="470" y="650" width="660" height="54" rx="27.0" fill="#D64545"/><text x="800.0" y="685.28" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="23" font-weight="700" fill="#FFFFFF" text-anchor="middle" >Verify integrity: tampering detected at entry #2</text>
+<line x1="80" y1="748" x2="1520" y2="748" stroke="#D5DAE3" stroke-width="2"/>
+<text x="80" y="796" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="25" font-weight="700" fill="#1E2A4A" text-anchor="start" >Tamper-evident, not tamper-proof: someone in the browser could re-hash the whole chain.</text>
+<text x="80" y="836" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="25" font-weight="700" fill="#1E2A4A" text-anchor="start" >A real version needs a server or signed anchor.</text>
+</svg>
