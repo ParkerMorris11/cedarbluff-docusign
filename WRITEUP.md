@@ -48,35 +48,45 @@ Status moves `draft → sent → completed` only through `transition(envelope, a
 
 ## 3. Key decisions
 
-### 1. Field positions are page fractions
+### 1. Store field positions as page fractions
 
 ![Fractions, not pixels: field positions stay aligned at different page sizes.](docs/decisions/1-positions.svg)
 
-Each field stores a page index plus x, y, w, h from 0 to 1, rendered as CSS percentages over a page with a fixed aspect ratio. Fields stay aligned at any width with no resize code. Trade-off: a PDF export would have to convert fractions to PDF points. Page sizes are stored for that.
+- **Chose:** each field stores a page index plus `x`, `y`, `w`, `h` as fractions from 0 to 1. The page keeps its aspect ratio, and fields are placed with CSS percentages.
+- **Why:** fields stay in the right place at any window size, with no resize code.
+- **Traded off:** a PDF export would need to convert fractions to PDF points. The page sizes are stored so that conversion is possible.
 
-### 2. Layout is separate from values
+### 2. Keep the field layout separate from the values
 
 ![Three separate pieces: source document, field layout, and entered values.](docs/decisions/2-layout-vs-values.svg)
 
-"Lock the layout" and "edit your own boxes" become separate rules that are easy to enforce and test, and a layout could become a template without stripping answers. Trade-off: when a field is deleted, retyped, or reassigned, its old value must be dropped. `applyLayout` does that.
+- **Chose:** three separate pieces. The source document (page images), the layout (`FieldDefinition[]`), and the values (keyed by field ID).
+- **Why:** "lock the layout" and "edit your own boxes" become separate rules that are easy to enforce and test. A layout could also become a template without stripping anyone's answers.
+- **Traded off:** when a field is deleted, retyped, or reassigned, its old value must be dropped by hand. `applyLayout` does that.
 
-### 3. Permissions are checked in the service, not only the UI
+### 3. Check permissions in the service, not only the UI
 
 ![The door and the lock: UI controls and service permission checks.](docs/decisions/3-permissions.svg)
 
-The same domain functions (`canView`, `canEditLayout`, `canEditField`) hide controls and are re-checked on every service call, including single reads, so a pasted URL says "not found." Trade-off: it all runs in the browser, so someone with DevTools can still edit storage. A real backend would enforce the same rules on the server.
+- **Chose:** the same domain functions (`canView`, `canEditLayout`, `canEditField`) decide what the screen shows, and the service checks them again on every call, including single reads.
+- **Why:** hiding a button is not enforcement. A pasted envelope URL says "not found," and a locked document stays locked.
+- **Traded off:** it all runs in the browser, so someone with DevTools can still edit storage. A real backend would enforce the same rules on the server.
 
-### 4. localStorage sits behind an async repository
+### 4. Put localStorage behind an async repository
 
 ![One helper for saving: screens call the service, which uses an async repository.](docs/decisions/4-repository.svg)
 
-`list`, `get` and `put` return promises, so a server-backed repository could replace it at the composition root. Trade-off: some abstraction for a small demo, and two open tabs can show stale data until they reload.
+- **Chose:** an `EnvelopeRepository` interface (`list`, `get`, `put`) that returns promises, with a localStorage implementation.
+- **Why:** a server-backed repository could replace it at the composition root without changing the screens.
+- **Traded off:** extra abstraction for a small demo. Data stays in one browser, so the two users are simulated with a user switcher.
 
 ### 5. Zustand holds only the current user
 
 ![One source of truth: Zustand holds the current user, while envelopes are loaded through the service and repository.](docs/decisions/5-one-source-of-truth.svg)
 
-There is no second envelope cache to keep in sync. Trade-off: screens reload from the service after each change.
+- **Chose:** the repository is the only source of envelope data. Zustand stores who you are acting as and nothing else.
+- **Why:** no second envelope cache to keep in sync after a save or a user switch.
+- **Traded off:** screens reload from the service after each change, and two open tabs can show stale data until they reload.
 
 ## 4. Feature: audit trail on an event bus
 
