@@ -48,13 +48,39 @@ Status moves `draft → sent → completed` only through `transition(envelope, a
 
 ## 3. Key decisions
 
-1. **Field positions are page fractions.** Each field stores a page index plus x, y, w, h from 0 to 1, rendered as CSS percentages over a page with a fixed aspect ratio. Fields stay aligned at any width with no resize code. Trade-off: a PDF export would have to convert fractions to PDF points. Page sizes are stored for that.
-2. **Layout is separate from values.** "Lock the layout" and "edit your own boxes" become separate rules that are easy to enforce and test, and a layout could become a template without stripping answers. Trade-off: when a field is deleted, retyped, or reassigned, its old value must be dropped. `applyLayout` does that.
-3. **Permissions are checked in the service, not only the UI.** The same domain functions (`canView`, `canEditLayout`, `canEditField`) hide controls and are re-checked on every service call, including single reads, so a pasted URL says "not found." Trade-off: it all runs in the browser, so someone with DevTools can still edit storage. A real backend would enforce the same rules on the server.
-4. **localStorage sits behind an async repository.** `list`, `get` and `put` return promises, so a server-backed repository could replace it at the composition root. Trade-off: some abstraction for a small demo, and two open tabs can show stale data until they reload.
-5. **Zustand holds only the current user.** There is no second envelope cache to keep in sync. Trade-off: screens reload from the service after each change.
+### 1. Field positions are page fractions
+
+![Fractions, not pixels: field positions stay aligned at different page sizes.](docs/decisions/1-positions.svg)
+
+Each field stores a page index plus x, y, w, h from 0 to 1, rendered as CSS percentages over a page with a fixed aspect ratio. Fields stay aligned at any width with no resize code. Trade-off: a PDF export would have to convert fractions to PDF points. Page sizes are stored for that.
+
+### 2. Layout is separate from values
+
+![Three separate pieces: source document, field layout, and entered values.](docs/decisions/2-layout-vs-values.svg)
+
+"Lock the layout" and "edit your own boxes" become separate rules that are easy to enforce and test, and a layout could become a template without stripping answers. Trade-off: when a field is deleted, retyped, or reassigned, its old value must be dropped. `applyLayout` does that.
+
+### 3. Permissions are checked in the service, not only the UI
+
+![The door and the lock: UI controls and service permission checks.](docs/decisions/3-permissions.svg)
+
+The same domain functions (`canView`, `canEditLayout`, `canEditField`) hide controls and are re-checked on every service call, including single reads, so a pasted URL says "not found." Trade-off: it all runs in the browser, so someone with DevTools can still edit storage. A real backend would enforce the same rules on the server.
+
+### 4. localStorage sits behind an async repository
+
+![One helper for saving: screens call the service, which uses an async repository.](docs/decisions/4-repository.svg)
+
+`list`, `get` and `put` return promises, so a server-backed repository could replace it at the composition root. Trade-off: some abstraction for a small demo, and two open tabs can show stale data until they reload.
+
+### 5. Zustand holds only the current user
+
+![One source of truth: Zustand holds the current user, while envelopes are loaded through the service and repository.](docs/decisions/5-one-source-of-truth.svg)
+
+There is no second envelope cache to keep in sync. Trade-off: screens reload from the service after each change.
 
 ## 4. Feature: audit trail on an event bus
+
+![Tamper-evident audit trail: service events feed an audit subscriber, and hashes link consecutive entries.](docs/decisions/6-audit-trail.svg)
 
 **What it does.** Every change (created, layout updated, values updated, issued, completed) is logged with who and when. Each entry stores the previous entry's hash and its own: `sha256(prevHash + entry)`. Each entry also seals a fingerprint of the saved document. **Verify integrity** re-checks the chain and compares the newest fingerprint with the document, so an edited entry or an edited signed value is caught.
 
@@ -87,4 +113,4 @@ Status moves `draft → sent → completed` only through `transition(envelope, a
 - 32 tests cover the domain, service, and audit chain. There are no component or end-to-end tests.
 - Only the Master Agreement is registered as a source document.
 
-The full write-up, with diagrams, is in [`docs/WRITEUP-full.md`](docs/WRITEUP-full.md).
+A longer write-up is in [`docs/WRITEUP-full.md`](docs/WRITEUP-full.md).
